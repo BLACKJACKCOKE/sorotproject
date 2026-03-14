@@ -441,7 +441,23 @@ nav.scrolled{
   transition:border-color .4s,color .4s,background .4s;
   opacity:0;
   animation:fadeIn 1s 2.4s ease forwards;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:6px;
 }
+.sound-top{display:flex;align-items:center;gap:12px}
+#soundTrackName{
+  font-size:.48rem;
+  letter-spacing:.18em;
+  color:rgba(196,144,94,.45);
+  font-style:italic;
+  max-width:180px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  display:none;
+}
+#soundBtn.active #soundTrackName{display:block}
 #soundBtn:hover{
   border-color:rgba(196,144,94,.5);
   color:var(--amber);
@@ -1385,10 +1401,11 @@ footer{
 
 <!-- ══════════ SOUND BTN ══════════ -->
 <button id="soundBtn" aria-label="소롯의 앰비언트 사운드 재생">
-  <div class="sw">
-    <b></b><b></b><b></b><b></b><b></b>
+  <div class="sound-top">
+    <div class="sw"><b></b><b></b><b></b><b></b><b></b></div>
+    소롯의 지금
   </div>
-  소롯의 지금
+  <span id="soundTrackName"></span>
 </button>
 
 <!-- ══════════ CONTRAST SECTION ══════════ -->
@@ -1742,89 +1759,117 @@ const io = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal, .reveal-left, .reveal-d1, .reveal-d2, .reveal-d3, .reveal-d4').forEach(el => io.observe(el));
 
 /* ──────────────────────────────────
-   AMBIENT SOUND (Web Audio API)
+   AMBIENT MUSIC PLAYER
+   Source: Free Music Archive — CC BY 4.0
+   Artist: Kai Engel, Lee Rosevere
 ────────────────────────────────── */
-let audioCtx = null;
-let masterGain = null;
-let isPlaying = false;
-const nodes = [];
-
-function createAmbientSound() {
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  masterGain = audioCtx.createGain();
-  masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-  masterGain.connect(audioCtx.destination);
-
-  // Brown noise (warm, like a quiet room)
-  const bufferSize = audioCtx.sampleRate * 4;
-  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-  const data = buffer.getChannelData(0);
-  let lastOut = 0;
-  for (let i = 0; i < bufferSize; i++) {
-    const white = Math.random() * 2 - 1;
-    data[i] = (lastOut + (0.02 * white)) / 1.02;
-    lastOut = data[i];
-    data[i] *= 3.5;
+const PLAYLIST = [
+  {
+    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_01_-_Contredanse.mp3',
+    label: 'Contredanse — Kai Engel'
+  },
+  {
+    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_02_-_Heliodor.mp3',
+    label: 'Heliodor — Kai Engel'
+  },
+  {
+    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_03_-_Snowflakes.mp3',
+    label: 'Snowflakes — Kai Engel'
+  },
+  {
+    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_04_-_Waterfall.mp3',
+    label: 'Waterfall — Kai Engel'
+  },
+  {
+    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_05_-_Daybreak.mp3',
+    label: 'Daybreak — Kai Engel'
   }
-  const noiseSource = audioCtx.createBufferSource();
-  noiseSource.buffer = buffer;
-  noiseSource.loop = true;
-  const noiseGain = audioCtx.createGain();
-  noiseGain.gain.value = 0.04;
-  noiseSource.connect(noiseGain);
-  noiseGain.connect(masterGain);
-  noiseSource.start();
-  nodes.push(noiseSource);
+];
 
-  // Very subtle low drone (like a building hum)
-  [60, 120, 180].forEach((freq, i) => {
-    const osc = audioCtx.createOscillator();
-    const oscGain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    oscGain.gain.value = 0.012 - i * 0.003;
-    osc.connect(oscGain);
-    oscGain.connect(masterGain);
-    osc.start();
-    nodes.push(osc);
-  });
+let audio        = null;
+let audioCtx     = null;
+let gainNode     = null;
+let isPlaying    = false;
+let currentIdx   = 0;
+let skipCount    = 0;
 
-  // Subtle page-turn-like random blip
-  let blipTimeout = null;
-  function scheduleBlip() {
-    if (!isPlaying) return;
-    const t = audioCtx.currentTime + Math.random() * 8 + 4;
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = 800 + Math.random() * 400;
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.01, t + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
-    osc.connect(g);
-    g.connect(masterGain);
-    osc.start(t);
-    osc.stop(t + 0.2);
-    osc.onended = () => { osc.disconnect(); g.disconnect(); };
-    blipTimeout = setTimeout(scheduleBlip, (Math.random() * 8000 + 4000));
-  }
-  scheduleBlip();
+const soundBtn     = document.getElementById('soundBtn');
+const trackNameEl  = document.getElementById('soundTrackName');
+
+function updateTrackName() {
+  if (trackNameEl) trackNameEl.textContent = PLAYLIST[currentIdx].label;
 }
 
-const soundBtn = document.getElementById('soundBtn');
+function initAudio() {
+  audio = new Audio();
+  audio.crossOrigin = 'anonymous';
+  audio.preload = 'none';
+
+  // Web Audio API gain node for smooth fade
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  gainNode = audioCtx.createGain();
+  gainNode.gain.value = 0;
+  const src = audioCtx.createMediaElementSource(audio);
+  src.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  audio.addEventListener('ended', () => {
+    currentIdx = (currentIdx + 1) % PLAYLIST.length;
+    playTrack();
+  });
+
+  audio.addEventListener('error', () => {
+    skipCount++;
+    if (skipCount >= PLAYLIST.length) {
+      // All tracks failed — stop gracefully
+      isPlaying = false;
+      soundBtn.classList.remove('active');
+      if (trackNameEl) trackNameEl.textContent = '연결 안됨';
+      return;
+    }
+    currentIdx = (currentIdx + 1) % PLAYLIST.length;
+    playTrack();
+  });
+}
+
+function playTrack() {
+  if (!audio) return;
+  audio.src = PLAYLIST[currentIdx].src;
+  updateTrackName();
+  audio.play().catch(() => {
+    // Autoplay blocked or load error — trigger error handler
+    audio.dispatchEvent(new Event('error'));
+  });
+}
+
+function fadeIn(duration = 2.5) {
+  if (!audioCtx || !gainNode) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+  gainNode.gain.setValueAtTime(gainNode.gain.value, audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0.85, audioCtx.currentTime + duration);
+}
+
+function fadeOut(duration = 1.8) {
+  if (!audioCtx || !gainNode) return;
+  gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+  gainNode.gain.setValueAtTime(gainNode.gain.value, audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+  setTimeout(() => { if (audio) audio.pause(); }, duration * 1000 + 100);
+}
+
 soundBtn.addEventListener('click', () => {
   if (!isPlaying) {
-    if (!audioCtx) createAmbientSound();
-    else if (audioCtx.state === 'suspended') audioCtx.resume();
-    masterGain.gain.setTargetAtTime(1, audioCtx.currentTime, 1.5);
+    if (!audio) initAudio();
+    skipCount = 0;
+    playTrack();
+    fadeIn();
     isPlaying = true;
     soundBtn.classList.add('active');
-    scheduleBlip();
   } else {
-    masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.8);
+    fadeOut();
     isPlaying = false;
     soundBtn.classList.remove('active');
-    if (blipTimeout) { clearTimeout(blipTimeout); blipTimeout = null; }
   }
 });
 
