@@ -1689,6 +1689,13 @@ footer{
     <span class="f-copyright">© 소롯 · Sorot · Seongsu-dong Seoul</span>
     <span class="f-copyright" style="color:rgba(242,228,206,.08)">오롯이, 당신만의 시간</span>
   </div>
+  <div class="f-bottom" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--rule)">
+    <span class="f-copyright" style="color:rgba(242,228,206,.35)">
+      Background music by Kevin MacLeod (incompetech.com) — Licensed under
+      <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener"
+         style="color:rgba(242,228,206,.45);text-decoration:underline;text-underline-offset:3px">CC BY 4.0</a>
+    </span>
+  </div>
 </footer>
 
 <!-- ══════════════════════════════════
@@ -1843,13 +1850,16 @@ function startMusic() {
   soundBtn.classList.add('active');
 }
 
-/* ── First interaction → autostart ── */
+/* ── First interaction → autostart
+     NOTE: 'scroll' is intentionally excluded.
+     Chrome/Firefox on desktop do NOT count scroll as a user activation
+     for autoplay purposes — only click, keydown, touchstart qualify. ── */
 function onFirstInteraction() {
   startMusic();
-  ['click','scroll','touchstart','keydown'].forEach(ev =>
+  ['click','touchstart','touchend','keydown','pointerdown'].forEach(ev =>
     document.removeEventListener(ev, onFirstInteraction));
 }
-['click','scroll','touchstart','keydown'].forEach(ev =>
+['click','touchstart','touchend','keydown','pointerdown'].forEach(ev =>
   document.addEventListener(ev, onFirstInteraction, { passive: true }));
 
 /* ── Try immediate autoplay (works in some browsers) ── */
