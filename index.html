@@ -1021,98 +1021,6 @@ nav.scrolled{
   color:rgba(242,228,206,.42);
 }
 
-/* ═══════════════════════════════════════════════
-   NOW AT SOROT
-═══════════════════════════════════════════════ */
-.s-now{
-  padding:130px 56px;
-  background:linear-gradient(180deg,var(--ink-warm) 0%,var(--ink) 100%);
-  border-top:1px solid var(--rule);
-}
-.s-now-inner{
-  max-width:900px;
-  margin:0 auto;
-}
-.now-label{
-  font-family:var(--sans);
-  font-size:.56rem;
-  font-weight:100;
-  letter-spacing:.5em;
-  color:var(--amber);
-  text-transform:uppercase;
-  margin-bottom:64px;
-  display:flex;align-items:center;gap:20px;
-}
-.now-label::after{content:'';flex:1;height:1px;background:var(--rule)}
-.now-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:2px;
-}
-.now-card{
-  padding:36px 32px;
-  background:rgba(242,228,206,.03);
-  border:1px solid var(--rule);
-  transition:background .4s,border-color .4s;
-  position:relative;
-  overflow:hidden;
-}
-.now-card:hover{
-  background:rgba(196,144,94,.05);
-  border-color:rgba(196,144,94,.2);
-}
-.now-card::after{
-  content:'';
-  position:absolute;bottom:0;left:0;right:0;
-  height:1px;
-  background:linear-gradient(to right,transparent,rgba(196,144,94,.2),transparent);
-  opacity:0;
-  transition:opacity .4s;
-}
-.now-card:hover::after{opacity:1}
-.nc-type{
-  font-family:var(--sans);
-  font-size:.52rem;
-  font-weight:100;
-  letter-spacing:.4em;
-  color:rgba(242,228,206,.3);
-  text-transform:uppercase;
-  margin-bottom:20px;
-}
-.nc-title{
-  font-size:1.1rem;
-  font-weight:300;
-  font-style:italic;
-  color:var(--cream);
-  margin-bottom:8px;
-  line-height:1.4;
-}
-.nc-sub{
-  font-family:var(--sans);
-  font-size:.7rem;
-  font-weight:200;
-  color:rgba(242,228,206,.4);
-  margin-bottom:20px;
-}
-.nc-reason{
-  font-family:var(--sans);
-  font-size:.7rem;
-  font-weight:200;
-  line-height:1.85;
-  color:rgba(242,228,206,.35);
-  font-style:italic;
-}
-.nc-arrow{
-  position:absolute;bottom:24px;right:24px;
-  font-family:var(--sans);
-  font-size:.6rem;
-  color:rgba(196,144,94,.35);
-  transition:color .3s,transform .3s;
-}
-.now-card:hover .nc-arrow{
-  color:var(--amber);
-  transform:translate(2px,-2px);
-}
 
 /* ═══════════════════════════════════════════════
    INSTAGRAM / FIND US
@@ -1357,8 +1265,6 @@ footer{
     padding:90px 24px;
     gap:60px;
   }
-  .s-now{padding:90px 24px}
-  .now-grid{grid-template-columns:1fr}
   .s-find{padding:80px 24px}
   .s-find-inner{grid-template-columns:1fr;gap:48px}
   footer{
@@ -1769,7 +1675,7 @@ if (!isTouchDevice()) {
   }
   animTrail();
 
-  document.querySelectorAll('a, button, .gallery-card, .now-card').forEach(el => {
+  document.querySelectorAll('a, button, .gallery-card').forEach(el => {
     el.addEventListener('mouseenter', () => cur.classList.add('hover'));
     el.addEventListener('mouseleave', () => cur.classList.remove('hover'));
   });
