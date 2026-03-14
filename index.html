@@ -283,12 +283,20 @@ nav.scrolled{
 /* Right: inside / quiet */
 .hero-inside{
   position:relative;
-  background:
-    radial-gradient(ellipse at 70% 30%, rgba(196,144,94,.12) 0%, transparent 60%),
-    linear-gradient(160deg,#1a1510 0%,#120e09 60%,#0e0b07 100%);
+  background:var(--ink);
   overflow:hidden;
   display:flex;align-items:flex-end;
 }
+.hero-photo{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  filter:brightness(0.45) contrast(1.15) saturate(0.65) sepia(0.18);
+  z-index:0;
+  transform:scale(1.04);
+  transition:transform 8s ease;
+}
+.hero-inside:hover .hero-photo{transform:scale(1.0)}
 /* Window light beams */
 .hero-inside::before{
   content:'';
@@ -511,6 +519,14 @@ nav.scrolled{
   overflow:hidden;
   background:var(--ink-warm);
 }
+.c-visual .space-photo{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center 30%;
+  filter:brightness(0.5) contrast(1.1) saturate(0.6) sepia(0.2);
+  z-index:0;
+}
 /* Candlelight simulation */
 .c-visual::before{
   content:'';
@@ -680,6 +696,18 @@ nav.scrolled{
   position:relative;
   overflow:hidden;
   background:var(--ink-warm);
+}
+.gallery-card .gc-photo{
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  filter:brightness(0.52) contrast(1.12) saturate(0.62) sepia(0.18);
+  z-index:0;
+  transition:transform .8s var(--ease-out),filter .8s;
+}
+.gallery-card:hover .gc-photo{
+  transform:scale(1.04);
+  filter:brightness(0.6) contrast(1.1) saturate(0.7) sepia(0.15);
 }
 .gallery-card:nth-child(1){width:340px;height:460px}
 .gallery-card:nth-child(2){width:240px;height:460px}
@@ -1388,6 +1416,7 @@ footer{
 
   <!-- Right: Sorot inside -->
   <div class="hero-inside">
+    <img src="images/sorotimage1.jpg" alt="소롯 내부 공간 — 책장과 샹들리에" class="hero-photo">
     <!-- Floating dust particles -->
     <div class="dust" id="dustContainer"></div>
 
@@ -1447,6 +1476,7 @@ footer{
   </div>
   <div class="c-visual-wrap reveal reveal-d1">
     <div class="c-visual">
+      <img src="images/sorotimage4.jpg" alt="소롯 창가 — 블라인드와 독서등" class="space-photo">
       <span class="c-tag tl">소롯</span>
       <span class="c-tag tr">서울 성동구</span>
       <div class="c-window">
@@ -1476,17 +1506,20 @@ footer{
   <p class="gallery-label reveal">소롯의 시간들</p>
   <div class="gallery-track" id="galleryTrack">
     <div class="gallery-card gc-1">
+      <img src="images/sorotimage2.jpg" alt="소롯 입구 — 초록과 핑크의 대비" class="gc-photo">
       <div class="gc-light"></div>
-      <span class="gc-label">책과 빛</span>
+      <span class="gc-label">문을 열면</span>
       <span class="gc-num">01</span>
     </div>
     <div class="gallery-card gc-2">
-      <span class="gc-label">오전의 창문</span>
+      <img src="images/sorotimage3.jpg" alt="소롯 옥상 — 책과 차" class="gc-photo">
+      <span class="gc-label">옥상의 오후</span>
       <span class="gc-num">02</span>
     </div>
     <div class="gallery-card gc-3">
+      <img src="images/sorotimage5.jpg" alt="눈 위에 쓴 소롯" class="gc-photo">
       <div class="gc-light"></div>
-      <span class="gc-label">오후 3시</span>
+      <span class="gc-label">소롯의 겨울</span>
       <span class="gc-num">03</span>
     </div>
     <div class="gallery-card gc-4">
