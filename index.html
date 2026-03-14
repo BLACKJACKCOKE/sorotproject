@@ -3,942 +3,1972 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="BAHA — 데뷔를 앞둔 솔로 아티스트 공식 페이지">
-<meta name="theme-color" content="#0D0C0A">
-
-<!-- Open Graph -->
-<meta property="og:title" content="BAHA Project">
-<meta property="og:description" content="새로운 이야기가 시작됩니다 — 2026 데뷔">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://sorotproject.pages.dev/">
-
-<title>BAHA Project</title>
-
+<meta name="description" content="소롯 — 성수동 한복판, 나만을 위한 프라이빗 감성 공간. 책과 음악과 빛이 있는 고요한 방.">
+<title>소롯 — 성수동의 고요한 방</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Noto+Serif+KR:wght@300;400;500&family=Noto+Sans+KR:wght@100;200;300&display=swap" rel="stylesheet">
 
 <style>
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+/* ═══════════════════════════════════════════════
+   TOKENS & RESET
+═══════════════════════════════════════════════ */
+:root {
+  --ink:        #0A0908;
+  --ink-mid:    #161410;
+  --ink-warm:   #1E1A14;
+  --cream:      #F2E4CE;
+  --cream-dim:  rgba(242,228,206,0.55);
+  --cream-ghost:rgba(242,228,206,0.12);
+  --amber:      #C4905E;
+  --amber-pale: #E2C496;
+  --amber-glow: rgba(196,144,94,0.18);
+  --rule:       rgba(242,228,206,0.08);
+  --serif: 'Cormorant Garamond','Noto Serif KR',serif;
+  --sans:  'Noto Sans KR',sans-serif;
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+  --ease-in-out: cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--ink);
+  color:var(--cream);
+  font-family:var(--serif);
+  overflow-x:hidden;
+  cursor:none;
+}
+img{display:block;width:100%;height:100%;object-fit:cover}
 
-  :root {
-    --gold: #C9A84C;
-    --gold-light: #E8C97A;
-    --gold-dim: #8B6E30;
-    --off-white: #F2EDE4;
-    --cream: #E8E0D0;
-    --dark: #0D0C0A;
-    --dark-2: #161410;
-    --dark-3: #1E1B16;
-    --mid: #2C2820;
-    --text-muted: #8A8070;
-    --text-sub: #B0A898;
-  }
+/* ═══════════════════════════════════════════════
+   FILM GRAIN OVERLAY
+═══════════════════════════════════════════════ */
+#grain{
+  position:fixed;inset:0;
+  pointer-events:none;
+  z-index:9998;
+  opacity:.28;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23g)' opacity='.05'/%3E%3C/svg%3E");
+  animation:grainShift 0.12s steps(1) infinite;
+}
+@keyframes grainShift{
+  0%  {transform:translate(0,0)}
+  25% {transform:translate(-2px,1px)}
+  50% {transform:translate(1px,-2px)}
+  75% {transform:translate(2px,0)}
+}
 
-  html {
-    scroll-behavior: smooth;
-  }
+/* ═══════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════ */
+#cursor{
+  position:fixed;
+  width:8px;height:8px;
+  background:var(--amber);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .25s var(--ease-out),height .25s var(--ease-out),background .25s;
+  mix-blend-mode:screen;
+}
+#cursor.hover{width:32px;height:32px;background:rgba(196,144,94,0.35)}
+#cursor-trail{
+  position:fixed;
+  width:32px;height:32px;
+  border:1px solid rgba(196,144,94,0.3);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:9997;
+  transform:translate(-50%,-50%);
+  transition:transform .08s linear,width .4s var(--ease-out),height .4s var(--ease-out);
+}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--dark);
-    color: var(--off-white);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* ═══════════════════════════════════════════════
+   INTRO LOADER
+═══════════════════════════════════════════════ */
+#loader{
+  position:fixed;inset:0;
+  background:var(--ink);
+  z-index:9000;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+  transition:opacity .9s var(--ease-in-out);
+}
+#loader.done{opacity:0;pointer-events:none}
+.loader-logo{
+  font-family:var(--serif);
+  font-size:clamp(2.5rem,6vw,4.5rem);
+  font-weight:300;
+  letter-spacing:.25em;
+  color:var(--cream);
+  opacity:0;
+  animation:loaderFade 1s .3s var(--ease-out) forwards;
+}
+.loader-sub{
+  font-family:var(--sans);
+  font-size:.6rem;
+  font-weight:100;
+  letter-spacing:.55em;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-top:18px;
+  opacity:0;
+  animation:loaderFade .8s .8s ease forwards;
+}
+.loader-bar{
+  position:absolute;bottom:0;left:0;
+  height:1px;
+  background:linear-gradient(to right,transparent,var(--amber),transparent);
+  animation:loaderBar 1.6s var(--ease-in-out) forwards;
+}
+@keyframes loaderFade{to{opacity:1}}
+@keyframes loaderBar{
+  from{width:0;opacity:0}
+  20%{opacity:1}
+  to{width:100%;opacity:0}
+}
 
-  /* ─── NAV ─── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 3rem;
-    background: linear-gradient(to bottom, rgba(13,12,10,0.95), transparent);
-    transition: background 0.4s;
-  }
-  nav.scrolled {
-    background: rgba(13,12,10,0.97);
-    border-bottom: 1px solid rgba(201,168,76,0.1);
-  }
-  .nav-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.3em;
-    color: var(--gold);
-    text-decoration: none;
-  }
-  .nav-links {
-    display: flex;
-    gap: 2.5rem;
-    list-style: none;
-  }
-  .nav-links a {
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-sub);
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  .nav-links a:hover { color: var(--gold-light); }
+/* ═══════════════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════════════ */
+#progress{
+  position:fixed;top:0;left:0;
+  height:1px;
+  background:linear-gradient(to right,var(--amber),var(--amber-pale));
+  z-index:500;
+  width:0%;
+  transition:width .1s linear;
+}
 
-  /* ─── HERO ─── */
-  .hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    padding: 0 3rem 5rem;
-    overflow: hidden;
-  }
-  .hero-bg {
-    position: absolute; inset: 0; z-index: 0;
-    background:
-      radial-gradient(ellipse 60% 70% at 70% 40%, rgba(201,168,76,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 40% 50% at 30% 60%, rgba(201,168,76,0.04) 0%, transparent 60%),
-      var(--dark);
-  }
-  .hero-grid {
-    position: absolute; inset: 0; z-index: 0;
-    background-image:
-      linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
-    background-size: 60px 60px;
-    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 80%);
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 80%);
-  }
-  .hero-number {
-    position: absolute;
-    right: 3rem; top: 50%;
-    transform: translateY(-50%);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(12rem, 22vw, 20rem);
-    line-height: 1;
-    color: rgba(201,168,76,0.06);
-    letter-spacing: -0.02em;
-    user-select: none;
-    z-index: 0;
-  }
-  .hero-tag {
-    position: absolute;
-    top: 8rem; left: 3rem;
-    font-size: 0.7rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--gold);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    z-index: 1;
-  }
-  .hero-tag::before {
-    content: '';
-    display: block;
-    width: 24px; height: 1px;
-    background: var(--gold);
-  }
-  .hero-content {
-    position: relative;
-    z-index: 1;
-  }
-  .hero-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(4.5rem, 10vw, 9rem);
-    line-height: 0.9;
-    letter-spacing: 0.05em;
-    margin-bottom: 1.5rem;
-  }
-  .hero-title .line-gold { color: var(--gold); }
-  .hero-title .line-dim  { color: rgba(242,237,228,0.15); }
-  .hero-sub {
-    font-size: 0.85rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-sub);
-    max-width: 320px;
-    line-height: 1.8;
-    margin-bottom: 2.5rem;
-  }
-  .hero-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    background: var(--gold);
-    color: var(--dark);
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    font-weight: 500;
-    padding: 0.85rem 2rem;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.3s, transform 0.2s;
-  }
-  .hero-cta:hover { background: var(--gold-light); transform: translateY(-2px); }
-  .hero-cta svg { width: 14px; height: 14px; }
-  .hero-scroll {
-    position: absolute;
-    bottom: 2rem; right: 3rem;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .scroll-line {
-    width: 1px; height: 48px;
-    background: linear-gradient(to bottom, transparent, var(--gold));
-    animation: scrollPulse 2s ease-in-out infinite;
-  }
-  @keyframes scrollPulse {
-    0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
-    50%       { opacity: 1;   transform: scaleY(1);   }
-  }
+/* ═══════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;
+  z-index:400;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:28px 56px;
+  transition:background .5s,padding .5s;
+}
+nav.scrolled{
+  background:rgba(10,9,8,.88);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  padding:18px 56px;
+  border-bottom:1px solid var(--rule);
+}
+.nav-logo{
+  font-family:var(--serif);
+  font-size:1.05rem;
+  font-weight:300;
+  letter-spacing:.32em;
+  color:var(--cream);
+  text-decoration:none;
+  text-transform:uppercase;
+  opacity:0;
+  animation:fadeIn 1s .6s ease forwards;
+}
+.nav-center{
+  position:absolute;left:50%;transform:translateX(-50%);
+  font-family:var(--sans);
+  font-size:.55rem;
+  font-weight:100;
+  letter-spacing:.5em;
+  color:rgba(242,228,206,.3);
+  text-transform:uppercase;
+  opacity:0;
+  animation:fadeIn 1s 1s ease forwards;
+}
+.nav-right{
+  display:flex;gap:36px;align-items:center;
+  opacity:0;
+  animation:fadeIn 1s .8s ease forwards;
+}
+.nav-right a{
+  font-family:var(--sans);
+  font-size:.6rem;
+  font-weight:200;
+  letter-spacing:.22em;
+  color:rgba(242,228,206,.45);
+  text-decoration:none;
+  text-transform:uppercase;
+  transition:color .35s;
+}
+.nav-right a:hover{color:var(--cream)}
+.nav-right .insta-link{
+  border:1px solid rgba(196,144,94,.3);
+  padding:8px 16px;
+  transition:border-color .35s,color .35s;
+}
+.nav-right .insta-link:hover{
+  border-color:var(--amber);
+  color:var(--amber);
+}
 
-  /* ─── FADE-UP ANIMATION ─── */
-  .fade-up {
-    opacity: 0;
-    transform: translateY(30px);
-    animation: fadeUp 0.8s ease forwards;
-  }
-  .fade-up-delay-1 { animation-delay: 0.15s; }
-  .fade-up-delay-2 { animation-delay: 0.30s; }
-  .fade-up-delay-3 { animation-delay: 0.45s; }
-  @keyframes fadeUp {
-    to { opacity: 1; transform: translateY(0); }
-  }
+/* ═══════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════ */
+.hero{
+  position:relative;
+  height:100vh;
+  min-height:600px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  overflow:hidden;
+}
 
-  /* scroll-triggered reveal */
-  .reveal {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
-  .reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .reveal-delay-1 { transition-delay: 0.1s; }
-  .reveal-delay-2 { transition-delay: 0.2s; }
-  .reveal-delay-3 { transition-delay: 0.3s; }
-  .reveal-delay-4 { transition-delay: 0.4s; }
+/* Left: outside / noise */
+.hero-outside{
+  position:relative;
+  background:
+    linear-gradient(200deg,#1e1810 0%,#0e0c08 100%);
+  overflow:hidden;
+}
+.hero-outside::before{
+  content:'';
+  position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,transparent 28px,
+      rgba(242,228,206,.012) 28px,rgba(242,228,206,.012) 30px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,transparent 48px,
+      rgba(242,228,206,.008) 48px,rgba(242,228,206,.008) 50px
+    );
+}
+/* Seongsu street light */
+.hero-outside::after{
+  content:'';
+  position:absolute;
+  top:-10%;left:55%;
+  width:160px;height:140%;
+  background:radial-gradient(ellipse at center top,
+    rgba(242,228,206,.06) 0%,
+    rgba(200,160,100,.04) 35%,
+    transparent 70%);
+  transform:rotate(-8deg);
+}
+.hero-outside-text{
+  position:absolute;bottom:52px;left:48px;
+  font-family:var(--sans);
+  font-size:.55rem;
+  font-weight:100;
+  letter-spacing:.5em;
+  color:rgba(242,228,206,.22);
+  text-transform:uppercase;
+  writing-mode:vertical-lr;
+  transform:rotate(180deg);
+}
 
-  /* ─── DIVIDER ─── */
-  .divider {
-    height: 1px;
-    background: linear-gradient(to right, transparent, rgba(201,168,76,0.2), transparent);
-    margin: 0 3rem;
-  }
+/* Divider line */
+.hero-divider{
+  position:absolute;
+  top:0;bottom:0;
+  left:50%;
+  width:1px;
+  background:linear-gradient(to bottom,
+    transparent 0%,
+    rgba(196,144,94,.35) 20%,
+    rgba(196,144,94,.6) 50%,
+    rgba(196,144,94,.35) 80%,
+    transparent 100%);
+  z-index:2;
+  opacity:0;
+  animation:fadeIn .8s 1.8s ease forwards;
+}
 
-  /* ─── SECTION BASE ─── */
-  section { padding: 6rem 3rem; }
-  .section-eyebrow {
-    font-size: 0.7rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .section-eyebrow::before {
-    content: '';
-    display: block;
-    width: 16px; height: 1px;
-    background: var(--gold);
-  }
-  .section-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.5rem, 5vw, 4rem);
-    letter-spacing: 0.05em;
-    line-height: 1;
-    margin-bottom: 2rem;
-  }
+/* Right: inside / quiet */
+.hero-inside{
+  position:relative;
+  background:
+    radial-gradient(ellipse at 70% 30%, rgba(196,144,94,.12) 0%, transparent 60%),
+    linear-gradient(160deg,#1a1510 0%,#120e09 60%,#0e0b07 100%);
+  overflow:hidden;
+  display:flex;align-items:flex-end;
+}
+/* Window light beams */
+.hero-inside::before{
+  content:'';
+  position:absolute;
+  top:0;right:22%;
+  width:180px;height:100%;
+  background:linear-gradient(to bottom,
+    rgba(196,144,94,.1) 0%,
+    rgba(196,144,94,.05) 55%,
+    transparent 100%);
+  transform:skewX(-6deg);
+  filter:blur(4px);
+}
+.hero-inside::after{
+  content:'';
+  position:absolute;
+  top:0;right:14%;
+  width:60px;height:100%;
+  background:linear-gradient(to bottom,
+    rgba(220,180,130,.12) 0%,
+    transparent 65%);
+  transform:skewX(-6deg);
+}
+/* Book spines on wall */
+.hero-books{
+  position:absolute;
+  top:18%;right:8%;
+  width:60px;
+  display:flex;flex-direction:column;gap:3px;
+  opacity:.18;
+}
+.hero-books span{
+  display:block;
+  height:2px;
+  background:var(--cream);
+  border-radius:1px;
+}
+.hero-books span:nth-child(2n){opacity:.6;width:85%}
+.hero-books span:nth-child(3n){opacity:.4;width:70%}
+.hero-books span:nth-child(5n){opacity:.8;width:95%}
+/* Dust particles */
+.dust{
+  position:absolute;
+  top:0;left:0;right:0;
+  height:60%;
+  overflow:hidden;
+  pointer-events:none;
+}
+.dust-p{
+  position:absolute;
+  width:2px;height:2px;
+  border-radius:50%;
+  background:rgba(196,144,94,.4);
+  animation:drift linear infinite;
+}
 
-  /* ─── ABOUT ─── */
-  .about { background: var(--dark-2); }
-  .about-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5rem;
-    max-width: 1100px;
-    align-items: center;
-  }
-  .about-visual {
-    position: relative;
-    aspect-ratio: 3/4;
-    background: var(--dark-3);
-    border: 1px solid rgba(201,168,76,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-  .about-visual-inner {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 6rem;
-    color: rgba(201,168,76,0.12);
-    letter-spacing: 0.1em;
-    user-select: none;
-  }
-  .about-visual::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 40%;
-    background: linear-gradient(transparent, var(--dark-3));
-  }
-  .about-corner {
-    position: absolute;
-    top: 1rem; left: 1rem;
-    width: 40px; height: 40px;
-    border-top: 1px solid var(--gold);
-    border-left: 1px solid var(--gold);
-  }
-  .about-corner-br {
-    position: absolute;
-    bottom: 1rem; right: 1rem;
-    width: 40px; height: 40px;
-    border-bottom: 1px solid var(--gold);
-    border-right: 1px solid var(--gold);
-  }
-  .about-label {
-    position: absolute;
-    bottom: 1.5rem; left: 1.5rem;
-    z-index: 1;
-    font-size: 0.65rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--gold-dim);
-  }
-  .about-text {
-    font-size: 1rem;
-    line-height: 1.9;
-    color: var(--text-sub);
-    margin-bottom: 1.5rem;
-  }
-  .about-text strong { color: var(--off-white); font-weight: 500; }
-  .about-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-top: 2rem;
-  }
-  .stat-item {
-    border-left: 1px solid rgba(201,168,76,0.3);
-    padding-left: 1rem;
-  }
-  .stat-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.2rem;
-    color: var(--gold);
-    letter-spacing: 0.05em;
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-top: 0.25rem;
-  }
+.hero-content{
+  position:relative;z-index:3;
+  padding:0 48px 80px;
+  opacity:0;
+  animation:slideUp 1.4s .9s var(--ease-out) forwards;
+}
+.hero-eyebrow{
+  font-family:var(--sans);
+  font-size:.58rem;
+  font-weight:100;
+  letter-spacing:.5em;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:28px;
+  display:flex;align-items:center;gap:16px;
+}
+.hero-eyebrow::before{
+  content:'';
+  display:block;width:28px;height:1px;
+  background:var(--amber);opacity:.5;
+}
+.hero-h1{
+  font-size:clamp(2.6rem,5.5vw,4.8rem);
+  font-weight:300;
+  line-height:1.08;
+  letter-spacing:-.01em;
+  color:var(--cream);
+  margin-bottom:36px;
+}
+.hero-h1 em{
+  font-style:italic;
+  color:var(--amber-pale);
+  display:block;
+  margin-left:0.08em;
+}
+.hero-sub{
+  font-family:var(--sans);
+  font-size:.82rem;
+  font-weight:200;
+  line-height:2;
+  color:var(--cream-dim);
+  max-width:300px;
+}
+.hero-scroll{
+  position:absolute;
+  bottom:52px;right:56px;
+  font-family:var(--sans);
+  font-size:.52rem;
+  font-weight:100;
+  letter-spacing:.45em;
+  color:rgba(242,228,206,.28);
+  text-transform:uppercase;
+  display:flex;align-items:center;gap:12px;
+  opacity:0;
+  animation:fadeIn 1s 2.2s ease forwards;
+}
+.hero-scroll::after{
+  content:'';
+  display:block;width:1px;height:40px;
+  background:linear-gradient(to bottom,rgba(242,228,206,.3),transparent);
+  animation:scrollPulse 2s ease-in-out infinite;
+}
+@keyframes scrollPulse{
+  0%,100%{opacity:.3;transform:scaleY(1)}
+  50%{opacity:1;transform:scaleY(1.1)}
+}
 
-  /* ─── MUSIC ─── */
-  .music { background: var(--dark); }
-  .music-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    margin-top: 3rem;
-    max-width: 1100px;
-  }
-  .track-card {
-    background: var(--dark-3);
-    border: 1px solid rgba(201,168,76,0.1);
-    padding: 1.75rem;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.3s, transform 0.3s;
-    cursor: pointer;
-  }
-  .track-card:hover {
-    border-color: rgba(201,168,76,0.35);
-    transform: translateY(-4px);
-  }
-  .track-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: var(--gold);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s;
-  }
-  .track-card:hover::before { transform: scaleX(1); }
-  .track-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 3.5rem;
-    color: rgba(201,168,76,0.1);
-    line-height: 1;
-    margin-bottom: 1rem;
-    transition: color 0.3s;
-  }
-  .track-card:hover .track-num { color: rgba(201,168,76,0.2); }
-  .track-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.4rem;
-    letter-spacing: 0.05em;
-    color: var(--off-white);
-    margin-bottom: 0.4rem;
-  }
-  .track-genre {
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .track-tag {
-    display: inline-block;
-    margin-top: 1rem;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold-dim);
-    border: 1px solid rgba(201,168,76,0.2);
-    padding: 0.25rem 0.6rem;
-  }
-  .track-tag.coming {
-    color: var(--gold);
-    border-color: rgba(201,168,76,0.4);
-  }
+/* ═══════════════════════════════════════════════
+   SOUND BUTTON
+═══════════════════════════════════════════════ */
+#soundBtn{
+  position:fixed;
+  bottom:40px;right:56px;
+  z-index:300;
+  display:flex;align-items:center;gap:12px;
+  background:transparent;
+  border:1px solid rgba(242,228,206,.15);
+  color:rgba(242,228,206,.4);
+  font-family:var(--sans);
+  font-size:.58rem;
+  font-weight:200;
+  letter-spacing:.28em;
+  text-transform:uppercase;
+  padding:12px 20px;
+  cursor:none;
+  transition:border-color .4s,color .4s,background .4s;
+  opacity:0;
+  animation:fadeIn 1s 2.4s ease forwards;
+}
+#soundBtn:hover{
+  border-color:rgba(196,144,94,.5);
+  color:var(--amber);
+}
+#soundBtn.active{
+  border-color:rgba(196,144,94,.6);
+  color:var(--amber);
+  background:rgba(196,144,94,.06);
+}
+.sw{display:flex;gap:3px;align-items:center;height:14px}
+.sw b{
+  display:block;width:2px;
+  background:currentColor;
+  border-radius:1px;
+  animation:wave 1.4s ease-in-out infinite;
+}
+.sw b:nth-child(1){height:4px;animation-delay:0s}
+.sw b:nth-child(2){height:9px;animation-delay:.1s}
+.sw b:nth-child(3){height:14px;animation-delay:.2s}
+.sw b:nth-child(4){height:7px;animation-delay:.3s}
+.sw b:nth-child(5){height:11px;animation-delay:.4s}
+@keyframes wave{
+  0%,100%{transform:scaleY(.4)}
+  50%{transform:scaleY(1)}
+}
+#soundBtn:not(.active) .sw{opacity:.5}
+#soundBtn:not(.active) .sw b{animation-play-state:paused}
 
-  /* ─── COUNTDOWN ─── */
-  .countdown {
-    background: var(--dark-2);
-    text-align: center;
-    padding: 6rem 3rem;
-  }
-  .countdown-label-top {
-    font-size: 0.7rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 3rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-  }
-  .countdown-label-top::before,
-  .countdown-label-top::after {
-    content: '';
-    display: block;
-    width: 40px; height: 1px;
-    background: rgba(201,168,76,0.4);
-  }
-  .countdown-row {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-  .countdown-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .countdown-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(4rem, 8vw, 7rem);
-    color: var(--gold);
-    line-height: 1;
-    letter-spacing: 0.02em;
-    min-width: 140px;
-    text-align: center;
-  }
-  .countdown-unit {
-    font-size: 0.65rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-top: 0.5rem;
-  }
-  .countdown-sep {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(4rem, 8vw, 7rem);
-    color: rgba(201,168,76,0.25);
-    line-height: 1;
-  }
-  .debut-date-wrap {
-    margin-top: 3rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .debut-date-label {
-    font-size: 0.7rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .debut-date-val {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.4rem;
-    letter-spacing: 0.2em;
-    color: var(--gold-light);
-  }
+/* ═══════════════════════════════════════════════
+   SECTION: CONTRAST
+═══════════════════════════════════════════════ */
+.s-contrast{
+  padding:150px 56px;
+  max-width:1180px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:100px;
+  align-items:center;
+}
+.c-label{
+  font-family:var(--sans);
+  font-size:.56rem;
+  font-weight:100;
+  letter-spacing:.5em;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:24px;
+  display:flex;align-items:center;gap:14px;
+}
+.c-label::before{content:'';width:20px;height:1px;background:var(--amber);opacity:.6}
+.c-heading{
+  font-size:clamp(2rem,3.8vw,3.2rem);
+  font-weight:300;
+  line-height:1.2;
+  color:var(--cream);
+  margin-bottom:36px;
+}
+.c-heading em{font-style:italic;color:var(--amber-pale)}
+.c-body{
+  font-family:var(--sans);
+  font-size:.8rem;
+  font-weight:200;
+  line-height:2.1;
+  color:var(--cream-dim);
+}
+.c-body strong{color:var(--cream);font-weight:300}
 
-  /* ─── CONNECT ─── */
-  .connect { background: var(--dark); }
-  .connect-inner { max-width: 1100px; }
-  .social-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin-top: 2.5rem;
-  }
-  .social-card {
-    background: var(--dark-3);
-    border: 1px solid rgba(201,168,76,0.1);
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    text-decoration: none;
-    cursor: pointer;
-    transition: border-color 0.3s, background 0.3s;
-  }
-  .social-card:hover {
-    border-color: rgba(201,168,76,0.35);
-    background: var(--mid);
-  }
-  .social-icon {
-    width: 36px; height: 36px;
-    background: rgba(201,168,76,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .social-icon svg {
-    width: 18px; height: 18px;
-    stroke: var(--gold);
-    fill: none;
-    stroke-width: 1.5;
-  }
-  .social-name {
-    font-size: 0.8rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--off-white);
-    font-weight: 500;
-  }
-  .social-handle {
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-  }
+/* Visual box */
+.c-visual-wrap{position:relative}
+.c-visual{
+  width:100%;
+  aspect-ratio:4/5;
+  position:relative;
+  overflow:hidden;
+  background:var(--ink-warm);
+}
+/* Candlelight simulation */
+.c-visual::before{
+  content:'';
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 90%,rgba(196,144,94,.22) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 60% at 30% 60%,rgba(180,130,80,.1) 0%,transparent 60%),
+    repeating-linear-gradient(to right,
+      transparent 0,transparent 18px,
+      rgba(242,228,206,.018) 18px,rgba(242,228,206,.018) 20px
+    );
+  animation:flickerGlow 5s ease-in-out infinite alternate;
+}
+.c-visual::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(
+    to top,
+    rgba(10,9,8,.95) 0%,
+    rgba(10,9,8,.2) 50%,
+    transparent 100%
+  );
+}
+@keyframes flickerGlow{
+  0%{opacity:.8}100%{opacity:1.2}
+}
+/* Window frame */
+.c-window{
+  position:absolute;
+  top:12%;right:15%;
+  width:38%;height:42%;
+  border:1px solid rgba(196,144,94,.2);
+  z-index:2;
+}
+.c-window::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom,
+    rgba(196,144,94,.08) 0%,
+    transparent 60%);
+}
+.c-window-h{
+  position:absolute;top:50%;left:0;right:0;
+  height:1px;background:rgba(196,144,94,.2);
+  transform:translateY(-50%);
+}
+.c-window-v{
+  position:absolute;left:50%;top:0;bottom:0;
+  width:1px;background:rgba(196,144,94,.2);
+  transform:translateX(-50%);
+}
+.c-caption{
+  position:absolute;bottom:0;left:0;right:0;
+  z-index:3;padding:24px;
+  display:flex;justify-content:space-between;align-items:flex-end;
+}
+.c-caption-text{
+  font-family:var(--sans);
+  font-size:.55rem;
+  font-weight:100;
+  letter-spacing:.35em;
+  color:rgba(242,228,206,.3);
+  text-transform:uppercase;
+}
+.c-caption-num{
+  font-family:var(--serif);
+  font-size:.7rem;
+  font-style:italic;
+  color:rgba(242,228,206,.15);
+}
+/* Float tags */
+.c-tag{
+  position:absolute;
+  font-family:var(--sans);
+  font-size:.52rem;
+  font-weight:100;
+  letter-spacing:.3em;
+  color:rgba(242,228,206,.25);
+  text-transform:uppercase;
+  z-index:3;
+}
+.c-tag.tl{top:20px;left:20px}
+.c-tag.tr{top:20px;right:20px;text-align:right}
+/* Decorative line */
+.c-deco{
+  position:absolute;
+  top:50%;left:-32px;
+  width:20px;height:1px;
+  background:rgba(196,144,94,.3);
+}
 
-  /* ─── NEWSLETTER ─── */
-  .newsletter {
-    background: var(--dark-2);
-    border: 1px solid rgba(201,168,76,0.15);
-    padding: 3rem;
-    margin: 0 3rem 6rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-  }
-  .nl-text h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.4rem;
-  }
-  .nl-text p {
-    font-size: 0.85rem;
-    color: var(--text-sub);
-    letter-spacing: 0.05em;
-  }
-  .nl-form {
-    display: flex;
-    flex: 1;
-    max-width: 400px;
-  }
-  .nl-input {
-    flex: 1;
-    background: var(--dark);
-    border: 1px solid rgba(201,168,76,0.2);
-    border-right: none;
-    padding: 0.75rem 1rem;
-    color: var(--off-white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
-    outline: none;
-    transition: border-color 0.3s;
-  }
-  .nl-input::placeholder { color: var(--text-muted); }
-  .nl-input:focus { border-color: rgba(201,168,76,0.5); }
-  .nl-btn {
-    background: var(--gold);
-    color: var(--dark);
-    border: none;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.3s;
-  }
-  .nl-btn:hover { background: var(--gold-light); }
+/* ═══════════════════════════════════════════════
+   FULL-BLEED QUOTE
+═══════════════════════════════════════════════ */
+.s-quote{
+  padding:120px 56px;
+  text-align:center;
+  position:relative;
+}
+.s-quote::before,.s-quote::after{
+  content:'';
+  position:absolute;left:50%;transform:translateX(-50%);
+  width:1px;
+  background:linear-gradient(to bottom,transparent,var(--rule),transparent);
+}
+.s-quote::before{top:0;height:80px}
+.s-quote::after{bottom:0;height:80px}
+.q-mark{
+  font-family:var(--serif);
+  font-size:6rem;
+  line-height:.5;
+  color:rgba(196,144,94,.1);
+  display:block;
+  margin-bottom:40px;
+}
+.q-text{
+  font-size:clamp(1.6rem,3.2vw,2.8rem);
+  font-weight:300;
+  line-height:1.55;
+  color:var(--cream);
+  font-style:italic;
+  max-width:640px;
+  margin:0 auto 32px;
+}
+.q-attr{
+  font-family:var(--sans);
+  font-size:.58rem;
+  font-weight:100;
+  letter-spacing:.4em;
+  color:var(--amber);
+  text-transform:uppercase;
+}
 
-  /* ─── FOOTER ─── */
-  footer {
-    border-top: 1px solid rgba(201,168,76,0.1);
-    padding: 2rem 3rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  .footer-logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1rem;
-    letter-spacing: 0.3em;
-    color: var(--gold-dim);
-  }
-  .footer-copy {
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-  }
+/* ═══════════════════════════════════════════════
+   HORIZONTAL SCROLL GALLERY
+═══════════════════════════════════════════════ */
+.s-gallery{
+  padding:0 0 80px;
+  overflow:hidden;
+  position:relative;
+}
+.gallery-label{
+  font-family:var(--sans);
+  font-size:.56rem;
+  font-weight:100;
+  letter-spacing:.5em;
+  color:rgba(242,228,206,.25);
+  text-transform:uppercase;
+  padding:0 56px;
+  margin-bottom:36px;
+  display:flex;align-items:center;gap:20px;
+}
+.gallery-label::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(to right,var(--rule),transparent);
+}
+.gallery-track{
+  display:flex;
+  gap:3px;
+  cursor:grab;
+  user-select:none;
+  padding:0 56px;
+}
+.gallery-track:active{cursor:grabbing}
+.gallery-card{
+  flex-shrink:0;
+  position:relative;
+  overflow:hidden;
+  background:var(--ink-warm);
+}
+.gallery-card:nth-child(1){width:340px;height:460px}
+.gallery-card:nth-child(2){width:240px;height:460px}
+.gallery-card:nth-child(3){width:380px;height:460px}
+.gallery-card:nth-child(4){width:280px;height:460px}
+.gallery-card:nth-child(5){width:320px;height:460px}
 
-  /* ─── RESPONSIVE ─── */
-  @media (max-width: 900px) {
-    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
-    .music-grid { grid-template-columns: 1fr 1fr; }
-    .social-grid { grid-template-columns: repeat(2, 1fr); }
-  }
+/* Each card has unique atmospheric background */
+.gc-1{
+  background:
+    radial-gradient(ellipse 70% 60% at 40% 70%,rgba(196,144,94,.18) 0%,transparent 70%),
+    linear-gradient(160deg,#1e1810 0%,#120e08 100%);
+}
+.gc-2{
+  background:
+    radial-gradient(ellipse 50% 80% at 60% 20%,rgba(180,130,80,.12) 0%,transparent 65%),
+    linear-gradient(120deg,#18140e 0%,#0e0b07 100%);
+}
+.gc-3{
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 50%,rgba(196,144,94,.14) 0%,transparent 60%),
+    linear-gradient(200deg,#1c1810 0%,#120f09 100%);
+}
+.gc-4{
+  background:
+    radial-gradient(ellipse 60% 70% at 30% 80%,rgba(160,110,60,.15) 0%,transparent 70%),
+    linear-gradient(140deg,#1a1510 0%,#100d08 100%);
+}
+.gc-5{
+  background:
+    radial-gradient(ellipse 90% 50% at 70% 30%,rgba(196,144,94,.1) 0%,transparent 60%),
+    linear-gradient(170deg,#1e1a12 0%,#14110a 100%);
+}
 
-  @media (max-width: 600px) {
-    nav { padding: 1.2rem 1.5rem; }
-    .nav-links { display: none; }
-    .hero { padding: 0 1.5rem 4rem; }
-    .hero-tag { left: 1.5rem; top: 7rem; }
-    .hero-number { font-size: 8rem; right: 0; }
-    .hero-scroll { right: 1.5rem; }
-    section { padding: 4rem 1.5rem; }
-    .divider { margin: 0 1.5rem; }
-    .music-grid { grid-template-columns: 1fr; }
-    .newsletter { margin: 0 1.5rem 4rem; padding: 2rem 1.5rem; flex-direction: column; }
-    .nl-form { max-width: 100%; width: 100%; }
-    footer { padding: 1.5rem; flex-direction: column; text-align: center; }
-    .countdown-num { min-width: 70px; font-size: clamp(3rem, 10vw, 5rem); }
-    .countdown-sep { font-size: clamp(3rem, 10vw, 5rem); }
+/* Book/texture overlays */
+.gc-1::before{
+  content:'';
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    to right,
+    transparent 0,transparent 16px,
+    rgba(242,228,206,.022) 16px,rgba(242,228,206,.022) 18px
+  );
+}
+.gc-3::before{
+  content:'';
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    0deg,
+    transparent 0,transparent 32px,
+    rgba(242,228,206,.015) 32px,rgba(242,228,206,.015) 34px
+  );
+}
+.gc-5::before{
+  content:'';
+  position:absolute;
+  top:0;left:30%;right:0;bottom:0;
+  background:linear-gradient(to bottom,
+    rgba(196,144,94,.09) 0%,
+    transparent 50%);
+  filter:blur(6px);
+}
+/* Bottom gradient + label */
+.gallery-card::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(10,9,8,.85) 0%,transparent 50%);
+}
+.gc-label{
+  position:absolute;bottom:20px;left:20px;
+  z-index:2;
+  font-family:var(--sans);
+  font-size:.52rem;
+  font-weight:100;
+  letter-spacing:.4em;
+  color:rgba(242,228,206,.35);
+  text-transform:uppercase;
+}
+.gc-num{
+  position:absolute;top:20px;right:20px;
+  z-index:2;
+  font-family:var(--serif);
+  font-size:.7rem;
+  font-style:italic;
+  color:rgba(242,228,206,.12);
+}
+/* Light shaft on some cards */
+.gc-light{
+  position:absolute;
+  top:-10%;
+  width:80px;height:130%;
+  background:linear-gradient(to bottom,
+    rgba(196,144,94,.12) 0%,transparent 80%);
+  transform:skewX(-5deg);
+  filter:blur(3px);
+}
+.gc-1 .gc-light{left:45%}
+.gc-3 .gc-light{left:20%}
+
+/* ═══════════════════════════════════════════════
+   REVIEWS SECTION
+═══════════════════════════════════════════════ */
+.s-reviews{
+  padding:130px 56px;
+  max-width:1000px;
+  margin:0 auto;
+  position:relative;
+  display:flex;gap:100px;
+}
+.reviews-sidebar{
+  flex-shrink:0;
+  width:200px;
+  padding-top:6px;
+}
+.reviews-sidebar-label{
+  font-family:var(--sans);
+  font-size:.56rem;
+  font-weight:100;
+  letter-spacing:.5em;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:28px;
+}
+.reviews-sidebar-count{
+  font-family:var(--serif);
+  font-size:5rem;
+  font-weight:300;
+  font-style:italic;
+  color:rgba(196,144,94,.15);
+  line-height:1;
+  display:block;
+  margin-bottom:20px;
+}
+.reviews-sidebar-note{
+  font-family:var(--sans);
+  font-size:.62rem;
+  font-weight:200;
+  line-height:1.9;
+  color:rgba(242,228,206,.3);
+}
+.reviews-list{flex:1}
+.review-item{
+  padding:44px 0;
+  border-top:1px solid var(--rule);
+  display:grid;
+  grid-template-columns:36px 1fr;
+  gap:28px;
+  align-items:start;
+  transition:border-color .3s;
+}
+.review-item:hover{border-color:rgba(196,144,94,.2)}
+.ri-num{
+  font-family:var(--serif);
+  font-size:.7rem;
+  font-style:italic;
+  color:rgba(242,228,206,.15);
+  padding-top:4px;
+}
+.ri-quote{
+  font-size:clamp(1.1rem,2vw,1.55rem);
+  font-weight:300;
+  font-style:italic;
+  line-height:1.65;
+  color:rgba(242,228,206,.88);
+  margin-bottom:14px;
+}
+.ri-meta{
+  display:flex;align-items:center;gap:16px;
+}
+.ri-from{
+  font-family:var(--sans);
+  font-size:.56rem;
+  font-weight:100;
+  letter-spacing:.3em;
+  color:rgba(242,228,206,.28);
+  text-transform:uppercase;
+}
+.ri-dot{
+  width:3px;height:3px;
+  border-radius:50%;
+  background:rgba(242,228,206,.15);
+}
+.ri-source{
+  font-family:var(--sans);
+  font-size:.56rem;
+  font-weight:100;
+  letter-spacing:.2em;
+  color:rgba(196,144,94,.5);
+  text-transform:uppercase;
+}
+
+/* ═══════════════════════════════════════════════
+   LARGE STANDALONE QUOTE
+═══════════════════════════════════════════════ */
+.s-big-quote{
+  padding:120px 56px;
+  background:var(--ink-warm);
+  border-top:1px solid var(--rule);
+  border-bottom:1px solid var(--rule);
+  position:relative;
+  overflow:hidden;
+}
+.s-big-quote::before{
+  content:'"';
+  position:absolute;top:-60px;left:40px;
+  font-family:var(--serif);
+  font-size:clamp(20vw,26rem,30rem);
+  color:rgba(196,144,94,.04);
+  line-height:1;
+  pointer-events:none;
+}
+.bq-inner{
+  max-width:800px;
+  position:relative;z-index:1;
+}
+.bq-bar{
+  width:48px;height:1px;
+  background:var(--amber);
+  margin-bottom:48px;
+  opacity:.5;
+}
+.bq-text{
+  font-size:clamp(1.8rem,3.5vw,3.2rem);
+  font-weight:300;
+  line-height:1.45;
+  font-style:italic;
+  color:var(--cream);
+  margin-bottom:36px;
+}
+.bq-attr{
+  font-family:var(--sans);
+  font-size:.6rem;
+  font-weight:100;
+  letter-spacing:.4em;
+  color:var(--amber);
+  text-transform:uppercase;
+}
+
+/* ═══════════════════════════════════════════════
+   ABOUT / STORY SECTION
+═══════════════════════════════════════════════ */
+.s-about{
+  padding:150px 56px;
+  max-width:1180px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:120px;
+  align-items:start;
+}
+.about-left{}
+.about-label{
+  font-family:var(--sans);
+  font-size:.56rem;
+  font-weight:100;
+  letter-spacing:.5em;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:48px;
+  display:flex;align-items:center;gap:16px;
+}
+.about-label::after{content:'';flex:1;height:1px;background:rgba(196,144,94,.2)}
+.about-heading{
+  font-size:clamp(1.8rem,3.2vw,2.8rem);
+  font-weight:300;
+  line-height:1.25;
+  color:var(--cream);
+  margin-bottom:48px;
+}
+.about-heading em{font-style:italic;color:var(--amber-pale)}
+.about-body{
+  font-family:var(--sans);
+  font-size:.8rem;
+  font-weight:200;
+  line-height:2.2;
+  color:var(--cream-dim);
+}
+.about-body p{margin-bottom:24px}
+.about-body strong{
+  color:var(--cream);
+  font-weight:300;
+}
+
+.about-right{padding-top:16px}
+/* Philosophy cards */
+.philo-card{
+  padding:28px 0;
+  border-top:1px solid var(--rule);
+}
+.philo-card:last-child{border-bottom:1px solid var(--rule)}
+.philo-num{
+  font-family:var(--serif);
+  font-size:.7rem;
+  font-style:italic;
+  color:rgba(196,144,94,.3);
+  margin-bottom:12px;
+  display:block;
+}
+.philo-heading{
+  font-size:1.05rem;
+  font-weight:300;
+  font-style:italic;
+  color:var(--cream);
+  margin-bottom:10px;
+}
+.philo-body{
+  font-family:var(--sans);
+  font-size:.72rem;
+  font-weight:200;
+  line-height:1.9;
+  color:rgba(242,228,206,.42);
+}
+
+/* ═══════════════════════════════════════════════
+   NOW AT SOROT
+═══════════════════════════════════════════════ */
+.s-now{
+  padding:130px 56px;
+  background:linear-gradient(180deg,var(--ink-warm) 0%,var(--ink) 100%);
+  border-top:1px solid var(--rule);
+}
+.s-now-inner{
+  max-width:900px;
+  margin:0 auto;
+}
+.now-label{
+  font-family:var(--sans);
+  font-size:.56rem;
+  font-weight:100;
+  letter-spacing:.5em;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:64px;
+  display:flex;align-items:center;gap:20px;
+}
+.now-label::after{content:'';flex:1;height:1px;background:var(--rule)}
+.now-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:2px;
+}
+.now-card{
+  padding:36px 32px;
+  background:rgba(242,228,206,.03);
+  border:1px solid var(--rule);
+  transition:background .4s,border-color .4s;
+  position:relative;
+  overflow:hidden;
+}
+.now-card:hover{
+  background:rgba(196,144,94,.05);
+  border-color:rgba(196,144,94,.2);
+}
+.now-card::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(to right,transparent,rgba(196,144,94,.2),transparent);
+  opacity:0;
+  transition:opacity .4s;
+}
+.now-card:hover::after{opacity:1}
+.nc-type{
+  font-family:var(--sans);
+  font-size:.52rem;
+  font-weight:100;
+  letter-spacing:.4em;
+  color:rgba(242,228,206,.3);
+  text-transform:uppercase;
+  margin-bottom:20px;
+}
+.nc-title{
+  font-size:1.1rem;
+  font-weight:300;
+  font-style:italic;
+  color:var(--cream);
+  margin-bottom:8px;
+  line-height:1.4;
+}
+.nc-sub{
+  font-family:var(--sans);
+  font-size:.7rem;
+  font-weight:200;
+  color:rgba(242,228,206,.4);
+  margin-bottom:20px;
+}
+.nc-reason{
+  font-family:var(--sans);
+  font-size:.7rem;
+  font-weight:200;
+  line-height:1.85;
+  color:rgba(242,228,206,.35);
+  font-style:italic;
+}
+.nc-arrow{
+  position:absolute;bottom:24px;right:24px;
+  font-family:var(--sans);
+  font-size:.6rem;
+  color:rgba(196,144,94,.35);
+  transition:color .3s,transform .3s;
+}
+.now-card:hover .nc-arrow{
+  color:var(--amber);
+  transform:translate(2px,-2px);
+}
+
+/* ═══════════════════════════════════════════════
+   INSTAGRAM / FIND US
+═══════════════════════════════════════════════ */
+.s-find{
+  padding:120px 56px;
+  border-top:1px solid var(--rule);
+}
+.s-find-inner{
+  max-width:900px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:80px;
+  align-items:center;
+}
+.find-left{}
+.find-label{
+  font-family:var(--sans);
+  font-size:.56rem;
+  font-weight:100;
+  letter-spacing:.5em;
+  color:var(--amber);
+  text-transform:uppercase;
+  margin-bottom:36px;
+}
+.find-heading{
+  font-size:clamp(1.6rem,2.8vw,2.4rem);
+  font-weight:300;
+  line-height:1.3;
+  color:var(--cream);
+  margin-bottom:28px;
+}
+.find-heading em{font-style:italic;color:var(--amber-pale)}
+.find-links{
+  display:flex;flex-direction:column;gap:12px;
+  margin-top:40px;
+}
+.find-link{
+  display:flex;align-items:center;gap:16px;
+  font-family:var(--sans);
+  font-size:.72rem;
+  font-weight:200;
+  color:rgba(242,228,206,.5);
+  text-decoration:none;
+  padding:16px 0;
+  border-bottom:1px solid var(--rule);
+  transition:color .3s,border-color .3s;
+}
+.find-link:hover{
+  color:var(--amber);
+  border-color:rgba(196,144,94,.2);
+}
+.find-link-arrow{
+  margin-left:auto;
+  font-size:.55rem;
+  opacity:.4;
+  transition:transform .3s;
+}
+.find-link:hover .find-link-arrow{
+  opacity:1;
+  transform:translate(3px,-1px);
+}
+.find-right{}
+.find-info-block{
+  padding:36px;
+  border:1px solid var(--rule);
+  background:rgba(242,228,206,.02);
+}
+.fib-label{
+  font-family:var(--sans);
+  font-size:.52rem;
+  font-weight:100;
+  letter-spacing:.4em;
+  color:rgba(242,228,206,.3);
+  text-transform:uppercase;
+  margin-bottom:20px;
+}
+.fib-data{
+  font-family:var(--sans);
+  font-size:.78rem;
+  font-weight:200;
+  line-height:2.3;
+  color:rgba(242,228,206,.55);
+}
+.fib-data strong{
+  color:var(--cream);
+  font-weight:300;
+  display:block;
+  margin-top:8px;
+}
+.fib-note{
+  margin-top:28px;
+  padding-top:20px;
+  border-top:1px solid var(--rule);
+  font-family:var(--sans);
+  font-size:.65rem;
+  font-weight:200;
+  line-height:1.8;
+  color:rgba(242,228,206,.28);
+  font-style:italic;
+}
+
+/* ═══════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════ */
+footer{
+  border-top:1px solid var(--rule);
+  padding:72px 56px 56px;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:end;
+  gap:40px;
+}
+.f-brand{
+  font-family:var(--serif);
+  font-size:3.5rem;
+  font-weight:300;
+  font-style:italic;
+  color:rgba(242,228,206,.08);
+  line-height:1;
+}
+.f-center{
+  text-align:center;
+}
+.f-center-logo{
+  font-family:var(--serif);
+  font-size:.9rem;
+  font-weight:300;
+  letter-spacing:.35em;
+  color:rgba(242,228,206,.35);
+  text-transform:uppercase;
+  display:block;
+  margin-bottom:12px;
+}
+.f-center-tagline{
+  font-family:var(--sans);
+  font-size:.55rem;
+  font-weight:100;
+  letter-spacing:.4em;
+  color:rgba(242,228,206,.18);
+  text-transform:uppercase;
+}
+.f-right{
+  text-align:right;
+}
+.f-links{
+  display:flex;flex-direction:column;gap:10px;
+  align-items:flex-end;
+}
+.f-links a{
+  font-family:var(--sans);
+  font-size:.6rem;
+  font-weight:200;
+  letter-spacing:.18em;
+  color:rgba(242,228,206,.3);
+  text-decoration:none;
+  text-transform:uppercase;
+  transition:color .3s;
+}
+.f-links a:hover{color:var(--amber)}
+.f-bottom{
+  grid-column:1/-1;
+  border-top:1px solid var(--rule);
+  padding-top:28px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.f-copyright{
+  font-family:var(--sans);
+  font-size:.52rem;
+  font-weight:100;
+  letter-spacing:.3em;
+  color:rgba(242,228,206,.15);
+  text-transform:uppercase;
+}
+
+/* ═══════════════════════════════════════════════
+   REVEAL ANIMATIONS
+═══════════════════════════════════════════════ */
+.reveal{
+  opacity:0;
+  transform:translateY(32px);
+  transition:opacity 1s ease,transform 1s var(--ease-out);
+}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.12s}
+.reveal-d2{transition-delay:.24s}
+.reveal-d3{transition-delay:.36s}
+.reveal-d4{transition-delay:.48s}
+.reveal-left{
+  opacity:0;
+  transform:translateX(-30px);
+  transition:opacity 1s ease,transform 1s var(--ease-out);
+}
+.reveal-left.visible{opacity:1;transform:translateX(0)}
+
+/* ═══════════════════════════════════════════════
+   ANIMATIONS (global)
+═══════════════════════════════════════════════ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{
+  from{opacity:0;transform:translateY(40px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes drift{
+  0%{transform:translateY(100vh) translateX(0);opacity:0}
+  5%{opacity:.6}
+  95%{opacity:.3}
+  100%{transform:translateY(-20px) translateX(30px);opacity:0}
+}
+
+/* ═══════════════════════════════════════════════
+   MOBILE
+═══════════════════════════════════════════════ */
+@media(max-width:900px){
+  #cursor,#cursor-trail{display:none}
+  body{cursor:auto}
+  nav{padding:18px 24px}
+  nav.scrolled{padding:14px 24px}
+  .nav-center{display:none}
+  .hero{grid-template-columns:1fr;height:auto;min-height:100vh}
+  .hero-outside{display:none}
+  .hero-inside{min-height:100vh}
+  .hero-divider{display:none}
+  .hero-content{padding:0 24px 72px}
+  .hero-scroll{right:24px;bottom:36px}
+  .s-contrast{
+    grid-template-columns:1fr;
+    padding:90px 24px;
+    gap:56px;
   }
+  .s-quote{padding:80px 24px}
+  .gallery-track{padding:0 24px}
+  .s-reviews{
+    flex-direction:column;gap:48px;
+    padding:90px 24px;
+  }
+  .reviews-sidebar{width:100%}
+  .s-big-quote{padding:80px 24px}
+  .s-about{
+    grid-template-columns:1fr;
+    padding:90px 24px;
+    gap:60px;
+  }
+  .s-now{padding:90px 24px}
+  .now-grid{grid-template-columns:1fr}
+  .s-find{padding:80px 24px}
+  .s-find-inner{grid-template-columns:1fr;gap:48px}
+  footer{
+    grid-template-columns:1fr;
+    padding:56px 24px 40px;
+    gap:32px;
+  }
+  .f-right{text-align:left}
+  .f-links{align-items:flex-start}
+  .f-center{display:none}
+  #soundBtn{right:24px;bottom:24px;font-size:.5rem;padding:10px 14px}
+}
 </style>
 </head>
 <body>
 
-<!-- ═══ NAV ═══ -->
-<nav id="main-nav">
-  <a href="#home" class="nav-logo">BAHA Project</a>
-  <ul class="nav-links">
-    <li><a href="#about">Artist</a></li>
-    <li><a href="#music">Music</a></li>
-    <li><a href="#countdown">Debut</a></li>
-    <li><a href="#connect">Connect</a></li>
-  </ul>
+<!-- GRAIN -->
+<div id="grain"></div>
+
+<!-- CURSORS -->
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+
+<!-- PROGRESS -->
+<div id="progress"></div>
+
+<!-- ══════════ LOADER ══════════ -->
+<div id="loader">
+  <span class="loader-logo">소롯</span>
+  <span class="loader-sub">Seoul · Seongsu · Private Space</span>
+  <div class="loader-bar"></div>
+</div>
+
+<!-- ══════════ NAV ══════════ -->
+<nav id="nav">
+  <a href="#" class="nav-logo">소롯</a>
+  <span class="nav-center">Seongsu-dong · Seoul</span>
+  <div class="nav-right">
+    <a href="#space">공간</a>
+    <a href="#story">소롯에 대해</a>
+    <a href="#reviews">방문자</a>
+    <a href="https://www.instagram.com/sorotbooks/" target="_blank" rel="noopener noreferrer" class="insta-link">@sorotbooks</a>
+  </div>
 </nav>
 
-<!-- ═══ HERO ═══ -->
-<section class="hero" id="home">
-  <div class="hero-bg"></div>
-  <div class="hero-grid"></div>
-  <div class="hero-number">B</div>
-  <div class="hero-tag">Debut Project · 2026</div>
-  <div class="hero-scroll">
-    <div class="scroll-line"></div>
-    <span>Scroll</span>
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <!-- Left: Seongsu outside -->
+  <div class="hero-outside">
+    <span class="hero-outside-text">성수동 · 서울 · 2024</span>
   </div>
-  <div class="hero-content">
-    <h1 class="hero-title fade-up">
-      <span class="line-dim">NEW</span><br>
-      <span class="line-gold">ARTIST</span><br>
-      <span>BAHA</span>
-    </h1>
-    <p class="hero-sub fade-up fade-up-delay-1">
-      데뷔를 앞둔 솔로 아티스트<br>
-      새로운 이야기가 시작됩니다
-    </p>
-    <a href="#countdown" class="hero-cta fade-up fade-up-delay-2">
-      데뷔 카운트다운 보기
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </a>
+
+  <!-- Divider -->
+  <div class="hero-divider"></div>
+
+  <!-- Right: Sorot inside -->
+  <div class="hero-inside">
+    <!-- Floating dust particles -->
+    <div class="dust" id="dustContainer"></div>
+
+    <!-- Book spines -->
+    <div class="hero-books">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <!-- Content -->
+    <div class="hero-content">
+      <p class="hero-eyebrow">Seoul · Seongsu · Private Space</p>
+      <h1 class="hero-h1">
+        문을 열면<br>
+        <em>달라진다</em>
+      </h1>
+      <p class="hero-sub">
+        바깥이 시끄러울수록<br>
+        이 공간은 더 고요해진다
+      </p>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="hero-scroll">scroll</div>
   </div>
 </section>
 
-<div class="divider"></div>
+<!-- ══════════ SOUND BTN ══════════ -->
+<button id="soundBtn" aria-label="소롯의 앰비언트 사운드 재생">
+  <div class="sw">
+    <b></b><b></b><b></b><b></b><b></b>
+  </div>
+  소롯의 지금
+</button>
 
-<!-- ═══ ABOUT ═══ -->
-<section class="about" id="about">
-  <div class="about-grid">
-    <div class="about-visual reveal">
-      <div class="about-visual-inner">BAHA</div>
-      <div class="about-corner"></div>
-      <div class="about-corner-br"></div>
-      <div class="about-label">Official Portrait — Coming Soon</div>
+<!-- ══════════ CONTRAST SECTION ══════════ -->
+<section class="s-contrast" id="space">
+  <div class="reveal">
+    <p class="c-label">성수동 한복판에서</p>
+    <h2 class="c-heading">
+      서울에서 가장<br>
+      <em>시끄러운 동네</em>에<br>
+      가장 조용한 방
+    </h2>
+    <p class="c-body">
+      성수동은 서울에서 가장 빠르게 변하는 동네입니다.<br>
+      카페, 편집숍, 사람들 — 언제나 복잡하고 언제나 시끄럽습니다.<br><br>
+      소롯은 그 한복판에 있습니다.<br>
+      하지만 이 문 안은 다릅니다.<br><br>
+      <strong>나 혼자, 혹은 우리만.</strong><br>
+      책과 음악과 빛 말고는 아무것도 없는 시간.<br>
+      오롯이 당신의 것이 되는 두 시간.
+    </p>
+  </div>
+  <div class="c-visual-wrap reveal reveal-d1">
+    <div class="c-visual">
+      <span class="c-tag tl">소롯</span>
+      <span class="c-tag tr">서울 성동구</span>
+      <div class="c-window">
+        <div class="c-window-h"></div>
+        <div class="c-window-v"></div>
+      </div>
+      <div class="c-deco"></div>
+      <div class="c-caption">
+        <span class="c-caption-text">Seongsu-dong · Seoul</span>
+        <span class="c-caption-num">書롯</span>
+      </div>
     </div>
-    <div>
-      <div class="section-eyebrow reveal">Artist</div>
-      <h2 class="section-title reveal reveal-delay-1">ABOUT<br>BAHA</h2>
-      <p class="about-text reveal reveal-delay-2">
-        <strong>BAHA</strong>는 독보적인 음악 세계를 구축해 나가고 있는
-        신인 솔로 아티스트입니다. 장르의 경계를 허물며
-        자신만의 사운드를 만들어 가는 여정을 함께하세요.
-      </p>
-      <p class="about-text reveal reveal-delay-3">
-        진정성 있는 이야기와 세련된 감각으로
-        <strong>2026년 공식 데뷔</strong>를 앞두고 있습니다.
-      </p>
-      <div class="about-stats reveal reveal-delay-4">
-        <div class="stat-item">
-          <div class="stat-num">2026</div>
-          <div class="stat-label">Debut Year</div>
+  </div>
+</section>
+
+<!-- ══════════ QUOTE 1 ══════════ -->
+<div class="s-quote reveal">
+  <span class="q-mark">"</span>
+  <p class="q-text">
+    이 공간에서<br>처음으로 전화를 껐다
+  </p>
+  <p class="q-attr">— 방문자 · 성수에서</p>
+</div>
+
+<!-- ══════════ GALLERY ══════════ -->
+<section class="s-gallery">
+  <p class="gallery-label reveal">소롯의 시간들</p>
+  <div class="gallery-track" id="galleryTrack">
+    <div class="gallery-card gc-1">
+      <div class="gc-light"></div>
+      <span class="gc-label">책과 빛</span>
+      <span class="gc-num">01</span>
+    </div>
+    <div class="gallery-card gc-2">
+      <span class="gc-label">오전의 창문</span>
+      <span class="gc-num">02</span>
+    </div>
+    <div class="gallery-card gc-3">
+      <div class="gc-light"></div>
+      <span class="gc-label">오후 3시</span>
+      <span class="gc-num">03</span>
+    </div>
+    <div class="gallery-card gc-4">
+      <span class="gc-label">고요함</span>
+      <span class="gc-num">04</span>
+    </div>
+    <div class="gallery-card gc-5">
+      <span class="gc-label">빛과 그림자</span>
+      <span class="gc-num">05</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ REVIEWS ══════════ -->
+<section class="s-reviews" id="reviews">
+  <div class="reviews-sidebar reveal">
+    <p class="reviews-sidebar-label">방문자의 말</p>
+    <span class="reviews-sidebar-count">六</span>
+    <p class="reviews-sidebar-note">
+      별점이 아닌<br>
+      감정의 언어로<br>
+      남겨진 기록들
+    </p>
+  </div>
+  <div class="reviews-list">
+    <div class="review-item reveal">
+      <span class="ri-num">01</span>
+      <div>
+        <p class="ri-quote">"서울에 이런 섬이 있는 줄 몰랐다"</p>
+        <div class="ri-meta">
+          <span class="ri-from">방문자</span>
+          <div class="ri-dot"></div>
+          <span class="ri-source">네이버 리뷰</span>
         </div>
-        <div class="stat-item">
-          <div class="stat-num">Solo</div>
-          <div class="stat-label">Artist Type</div>
+      </div>
+    </div>
+    <div class="review-item reveal">
+      <span class="ri-num">02</span>
+      <div>
+        <p class="ri-quote">"혼자 왔는데 외롭지 않았다"</p>
+        <div class="ri-meta">
+          <span class="ri-from">방문자</span>
+          <div class="ri-dot"></div>
+          <span class="ri-source">인스타그램</span>
         </div>
-        <div class="stat-item">
-          <div class="stat-num">KR</div>
-          <div class="stat-label">Based In</div>
+      </div>
+    </div>
+    <div class="review-item reveal">
+      <span class="ri-num">03</span>
+      <div>
+        <p class="ri-quote">"두 시간이 두 분처럼 느껴졌다"</p>
+        <div class="ri-meta">
+          <span class="ri-from">방문자</span>
+          <div class="ri-dot"></div>
+          <span class="ri-source">방명록</span>
         </div>
-        <div class="stat-item">
-          <div class="stat-num">TBA</div>
-          <div class="stat-label">Debut Single</div>
+      </div>
+    </div>
+    <div class="review-item reveal">
+      <span class="ri-num">04</span>
+      <div>
+        <p class="ri-quote">"책을 읽은 게 아니라 책과 함께 앉아 있었다"</p>
+        <div class="ri-meta">
+          <span class="ri-from">방문자</span>
+          <div class="ri-dot"></div>
+          <span class="ri-source">네이버 지도</span>
+        </div>
+      </div>
+    </div>
+    <div class="review-item reveal">
+      <span class="ri-num">05</span>
+      <div>
+        <p class="ri-quote">"들어오는 순간 어깨가 내려갔다. 나갈 때 무언가 달라져 있었다"</p>
+        <div class="ri-meta">
+          <span class="ri-from">방문자</span>
+          <div class="ri-dot"></div>
+          <span class="ri-source">블로그</span>
+        </div>
+      </div>
+    </div>
+    <div class="review-item reveal">
+      <span class="ri-num">06</span>
+      <div>
+        <p class="ri-quote">"성수동에서 가장 좋아하는 장소가 생겼다"</p>
+        <div class="ri-meta">
+          <span class="ri-from">방문자</span>
+          <div class="ri-dot"></div>
+          <span class="ri-source">네이버 리뷰</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
-
-<!-- ═══ MUSIC ═══ -->
-<section class="music" id="music">
-  <div class="section-eyebrow reveal">Music</div>
-  <h2 class="section-title reveal reveal-delay-1">COMING<br>SOON</h2>
-  <div class="music-grid">
-    <div class="track-card reveal reveal-delay-1">
-      <div class="track-num">01</div>
-      <div class="track-title">Debut Single</div>
-      <div class="track-genre">Title Track · TBA</div>
-      <span class="track-tag coming">Coming Soon</span>
-    </div>
-    <div class="track-card reveal reveal-delay-2">
-      <div class="track-num">02</div>
-      <div class="track-title">B-Side Track</div>
-      <div class="track-genre">Debut Album · TBA</div>
-      <span class="track-tag">Unrevealed</span>
-    </div>
-    <div class="track-card reveal reveal-delay-3">
-      <div class="track-num">03</div>
-      <div class="track-title">Pre-Release</div>
-      <div class="track-genre">Teaser · TBA</div>
-      <span class="track-tag">Unrevealed</span>
-    </div>
+<!-- ══════════ BIG QUOTE ══════════ -->
+<div class="s-big-quote reveal">
+  <div class="bq-inner">
+    <div class="bq-bar"></div>
+    <p class="bq-text">
+      바쁘고 복잡한 서울 한복판에서,<br>
+      오직 당신만을 위해<br>고요해지는 공간
+    </p>
+    <p class="bq-attr">소롯 · 성수동</p>
   </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- ═══ COUNTDOWN ═══ -->
-<section class="countdown" id="countdown">
-  <div class="countdown-label-top reveal">Debut Countdown</div>
-  <div class="countdown-row reveal reveal-delay-1">
-    <div class="countdown-block">
-      <div class="countdown-num" id="cd-days">--</div>
-      <div class="countdown-unit">Days</div>
-    </div>
-    <div class="countdown-sep">:</div>
-    <div class="countdown-block">
-      <div class="countdown-num" id="cd-hours">--</div>
-      <div class="countdown-unit">Hours</div>
-    </div>
-    <div class="countdown-sep">:</div>
-    <div class="countdown-block">
-      <div class="countdown-num" id="cd-mins">--</div>
-      <div class="countdown-unit">Minutes</div>
-    </div>
-    <div class="countdown-sep">:</div>
-    <div class="countdown-block">
-      <div class="countdown-num" id="cd-secs">--</div>
-      <div class="countdown-unit">Seconds</div>
-    </div>
-  </div>
-  <div class="debut-date-wrap reveal reveal-delay-2">
-    <div class="debut-date-label">Debut Target</div>
-    <div class="debut-date-val">2026 · TBA</div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- ═══ CONNECT ═══ -->
-<section class="connect" id="connect">
-  <div class="connect-inner">
-    <div class="section-eyebrow reveal">Connect</div>
-    <h2 class="section-title reveal reveal-delay-1">FOLLOW<br>BAHA</h2>
-    <div class="social-grid">
-
-      <a href="https://instagram.com/baha_official" target="_blank" rel="noopener" class="social-card reveal reveal-delay-1">
-        <div class="social-icon">
-          <svg viewBox="0 0 24 24">
-            <rect x="2" y="2" width="20" height="20" rx="5"/>
-            <circle cx="12" cy="12" r="4"/>
-            <circle cx="17.5" cy="6.5" r="1.2" fill="var(--gold)" stroke="none"/>
-          </svg>
-        </div>
-        <div class="social-name">Instagram</div>
-        <div class="social-handle">@baha_official</div>
-      </a>
-
-      <a href="https://twitter.com/baha_official" target="_blank" rel="noopener" class="social-card reveal reveal-delay-2">
-        <div class="social-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M4 4l16 16M4 20L20 4" stroke="var(--gold)" stroke-width="2"/>
-          </svg>
-        </div>
-        <div class="social-name">X (Twitter)</div>
-        <div class="social-handle">@baha_official</div>
-      </a>
-
-      <a href="https://youtube.com/@bahaofficial" target="_blank" rel="noopener" class="social-card reveal reveal-delay-3">
-        <div class="social-icon">
-          <svg viewBox="0 0 24 24">
-            <rect x="2" y="5" width="20" height="14" rx="3"/>
-            <polygon points="10,9 10,15 16,12" fill="var(--gold)" stroke="none"/>
-          </svg>
-        </div>
-        <div class="social-name">YouTube</div>
-        <div class="social-handle">BAHA Official</div>
-      </a>
-
-      <a href="https://weverse.io/baha" target="_blank" rel="noopener" class="social-card reveal reveal-delay-4">
-        <div class="social-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 3L4 8v8l8 5 8-5V8z"/>
-            <path d="M12 3v13M4 8l8 5 8-5" stroke-width="1.2"/>
-          </svg>
-        </div>
-        <div class="social-name">Weverse</div>
-        <div class="social-handle">BAHA</div>
-      </a>
-
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
-
-<!-- ═══ NEWSLETTER ═══ -->
-<div class="newsletter reveal">
-  <div class="nl-text">
-    <h3>데뷔 소식을 가장 먼저 받으세요</h3>
-    <p>BAHA의 첫 번째 팬이 되어주세요</p>
-  </div>
-  <form class="nl-form" onsubmit="handleSubscribe(event)">
-    <input class="nl-input" type="email" placeholder="이메일 주소를 입력하세요" required>
-    <button type="submit" class="nl-btn">구독하기</button>
-  </form>
 </div>
 
-<!-- ═══ FOOTER ═══ -->
+<!-- ══════════ ABOUT ══════════ -->
+<section class="s-about" id="story">
+  <div class="about-left reveal">
+    <p class="about-label">소롯에 대하여</p>
+    <h2 class="about-heading">
+      <em>오롯이</em> 나만의<br>
+      시간을 위한 곳
+    </h2>
+    <div class="about-body">
+      <p>소롯은 성수동에 있습니다. 하지만 성수동의 소음은 이 문 안까지 들어오지 않습니다.</p>
+      <p>하루에 단 몇 팀만이 이 공간을 경험합니다. <strong>나 혼자, 또는 진짜 함께이고 싶은 사람들과만.</strong> 책과 음악과 빛 말고는 아무것도 없는 시간.</p>
+      <p>소롯이라는 이름처럼 — 오롯이, 그 시간은 당신의 것입니다.</p>
+    </div>
+  </div>
+  <div class="about-right reveal reveal-d2">
+    <div class="philo-card">
+      <span class="philo-num">01</span>
+      <p class="philo-heading">프라이빗한 공간</p>
+      <p class="philo-body">하루에 소수의 팀만 이용할 수 있습니다. 당신이 있는 동안, 이 공간은 오직 당신만의 것입니다.</p>
+    </div>
+    <div class="philo-card">
+      <span class="philo-num">02</span>
+      <p class="philo-heading">큐레이션된 책들</p>
+      <p class="philo-body">알고리즘이 아닌 사람이 고른 책들이 있습니다. 손이 닿을 거리에, 읽고 싶어지도록.</p>
+    </div>
+    <div class="philo-card">
+      <span class="philo-num">03</span>
+      <p class="philo-heading">음악과 빛</p>
+      <p class="philo-body">소롯이 직접 만든 플레이리스트가 이 공간을 채웁니다. 창문으로 들어오는 빛과 함께.</p>
+    </div>
+    <div class="philo-card">
+      <span class="philo-num">04</span>
+      <p class="philo-heading">아무것도 하지 않아도 됩니다</p>
+      <p class="philo-body">이 공간에서 반드시 무언가를 해야 하지 않습니다. 그냥 있어도 됩니다. 그것으로 충분합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ NOW AT SOROT ══════════ -->
+<section class="s-now">
+  <div class="s-now-inner">
+    <p class="now-label reveal">지금 소롯에서</p>
+    <div class="now-grid">
+      <div class="now-card reveal">
+        <p class="nc-type">이달의 책</p>
+        <p class="nc-title">소롯이 고른<br>이달의 한 권</p>
+        <p class="nc-sub">소롯 큐레이션</p>
+        <p class="nc-reason">
+          이 공간에서 읽을 때<br>
+          가장 잘 어울리는 책.<br>
+          소롯이 직접 골랐습니다.
+        </p>
+        <span class="nc-arrow">↗</span>
+      </div>
+      <div class="now-card reveal reveal-d1">
+        <p class="nc-type">이달의 플레이리스트</p>
+        <p class="nc-title">소롯의<br>3월 사운드</p>
+        <p class="nc-sub">소롯 선곡</p>
+        <p class="nc-reason">
+          알고리즘이 아닌 사람이 고른 음악.<br>
+          이 공간의 빛과 온도에<br>
+          맞춰진 소리들.
+        </p>
+        <span class="nc-arrow">↗</span>
+      </div>
+      <div class="now-card reveal reveal-d2">
+        <p class="nc-type">소롯 블로그</p>
+        <p class="nc-title">이 공간에<br>대한 기록들</p>
+        <p class="nc-sub">sorot_books</p>
+        <p class="nc-reason">
+          소롯을 다녀간 이들의 이야기,<br>
+          책과 음악에 대한 짧은 글들.
+        </p>
+        <a href="https://blog.naver.com/sorot_books" target="_blank" class="nc-arrow" style="color:var(--amber);text-decoration:none;">↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FIND US ══════════ -->
+<section class="s-find">
+  <div class="s-find-inner">
+    <div class="find-left reveal">
+      <p class="find-label">소롯 찾아오기</p>
+      <h2 class="find-heading">
+        성수동 한복판,<br>
+        <em>숨어있는</em> 고요함
+      </h2>
+      <div class="find-links">
+        <a href="https://www.instagram.com/sorotbooks/" target="_blank" rel="noopener noreferrer" class="find-link">
+          인스타그램 @sorotbooks
+          <span class="find-link-arrow">↗</span>
+        </a>
+        <a href="https://blog.naver.com/sorot_books" target="_blank" rel="noopener noreferrer" class="find-link">
+          네이버 블로그
+          <span class="find-link-arrow">↗</span>
+        </a>
+        <a href="https://map.naver.com/p/search/%EC%86%8C%EB%A1%AF/place/2036480100" target="_blank" rel="noopener noreferrer" class="find-link">
+          네이버 지도에서 보기
+          <span class="find-link-arrow">↗</span>
+        </a>
+      </div>
+    </div>
+    <div class="find-right reveal reveal-d1">
+      <div class="find-info-block">
+        <p class="fib-label">방문 안내</p>
+        <div class="fib-data">
+          <span>위치</span>
+          <strong>서울특별시 성동구 성수동</strong>
+          <span>운영일</span>
+          <strong>화요일 — 일요일</strong>
+          <span>운영시간</span>
+          <strong>낮이 기울기 시작할 때<br>문이 열립니다</strong>
+        </div>
+        <p class="fib-note">
+          소롯은 소규모 프라이빗 운영입니다.<br>
+          자세한 이용 방법은 인스타그램에서<br>
+          확인해주세요.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
 <footer>
-  <div class="footer-logo">BAHA Project</div>
-  <div class="footer-copy">© 2026 BAHA Project · All Rights Reserved</div>
+  <div class="f-brand">sorot</div>
+  <div class="f-center">
+    <span class="f-center-logo">소롯</span>
+    <span class="f-center-tagline">Seoul · Seongsu · Private Space</span>
+  </div>
+  <div class="f-right">
+    <div class="f-links">
+      <a href="https://www.instagram.com/sorotbooks/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://blog.naver.com/sorot_books" target="_blank" rel="noopener noreferrer">Blog</a>
+      <a href="https://map.naver.com/p/search/%EC%86%8C%EB%A1%AF/place/2036480100" target="_blank" rel="noopener noreferrer">Naver Map</a>
+    </div>
+  </div>
+  <div class="f-bottom">
+    <span class="f-copyright">© 소롯 · Sorot · Seongsu-dong Seoul</span>
+    <span class="f-copyright" style="color:rgba(242,228,206,.08)">오롯이, 당신만의 시간</span>
+  </div>
 </footer>
 
-<!-- ═══ SCRIPTS ═══ -->
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
 <script>
-  /* ── Countdown Timer ── */
-  const DEBUT = new Date('2026-12-01T00:00:00+09:00');
+/* ──────────────────────────────────
+   LOADER
+────────────────────────────────── */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('done');
+  }, 1900);
+});
 
-  function pad(n) { return String(n).padStart(2, '0'); }
+/* ──────────────────────────────────
+   CUSTOM CURSOR (desktop only)
+────────────────────────────────── */
+const cur = document.getElementById('cursor');
+const trail = document.getElementById('cursor-trail');
+const isTouchDevice = () => window.matchMedia('(hover: none)').matches;
 
-  function tick() {
-    const diff = DEBUT - Date.now();
-    if (diff <= 0) {
-      ['cd-days','cd-hours','cd-mins','cd-secs'].forEach(id => {
-        document.getElementById(id).textContent = '00';
-      });
-      return;
-    }
-    document.getElementById('cd-days').textContent  = pad(Math.floor(diff / 86400000));
-    document.getElementById('cd-hours').textContent = pad(Math.floor((diff % 86400000) / 3600000));
-    document.getElementById('cd-mins').textContent  = pad(Math.floor((diff % 3600000) / 60000));
-    document.getElementById('cd-secs').textContent  = pad(Math.floor((diff % 60000) / 1000));
-  }
-  tick();
-  setInterval(tick, 1000);
+if (!isTouchDevice()) {
+  let mx = 0, my = 0, tx = 0, ty = 0;
+  let rafId = null;
 
-  /* ── Nav scroll style ── */
-  const nav = document.getElementById('main-nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 60);
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cur.style.left = mx + 'px';
+    cur.style.top = my + 'px';
   });
 
-  /* ── Scroll reveal ── */
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-  /* ── Newsletter submit ── */
-  function handleSubscribe(e) {
-    e.preventDefault();
-    const input = e.target.querySelector('input');
-    const btn   = e.target.querySelector('button');
-    btn.textContent = '구독 완료!';
-    btn.style.background = '#E8C97A';
-    input.value = '';
-    setTimeout(() => {
-      btn.textContent = '구독하기';
-      btn.style.background = '';
-    }, 3000);
+  function animTrail() {
+    tx += (mx - tx) * 0.12;
+    ty += (my - ty) * 0.12;
+    trail.style.left = tx + 'px';
+    trail.style.top = ty + 'px';
+    rafId = requestAnimationFrame(animTrail);
   }
-</script>
+  animTrail();
 
+  document.querySelectorAll('a, button, .gallery-card, .now-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cur.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cur.classList.remove('hover'));
+  });
+}
+
+/* ──────────────────────────────────
+   SCROLL PROGRESS
+────────────────────────────────── */
+const prog = document.getElementById('progress');
+const nav  = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  const s = window.scrollY;
+  const h = document.body.scrollHeight - window.innerHeight;
+  prog.style.width = (s / h * 100) + '%';
+  nav.classList.toggle('scrolled', s > 60);
+}, {passive: true});
+
+/* ──────────────────────────────────
+   SCROLL REVEAL
+────────────────────────────────── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, {threshold: 0.1});
+document.querySelectorAll('.reveal, .reveal-left, .reveal-d1, .reveal-d2, .reveal-d3, .reveal-d4').forEach(el => io.observe(el));
+
+/* ──────────────────────────────────
+   AMBIENT SOUND (Web Audio API)
+────────────────────────────────── */
+let audioCtx = null;
+let masterGain = null;
+let isPlaying = false;
+const nodes = [];
+
+function createAmbientSound() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+  masterGain.connect(audioCtx.destination);
+
+  // Brown noise (warm, like a quiet room)
+  const bufferSize = audioCtx.sampleRate * 4;
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+  let lastOut = 0;
+  for (let i = 0; i < bufferSize; i++) {
+    const white = Math.random() * 2 - 1;
+    data[i] = (lastOut + (0.02 * white)) / 1.02;
+    lastOut = data[i];
+    data[i] *= 3.5;
+  }
+  const noiseSource = audioCtx.createBufferSource();
+  noiseSource.buffer = buffer;
+  noiseSource.loop = true;
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.value = 0.04;
+  noiseSource.connect(noiseGain);
+  noiseGain.connect(masterGain);
+  noiseSource.start();
+  nodes.push(noiseSource);
+
+  // Very subtle low drone (like a building hum)
+  [60, 120, 180].forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const oscGain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    oscGain.gain.value = 0.012 - i * 0.003;
+    osc.connect(oscGain);
+    oscGain.connect(masterGain);
+    osc.start();
+    nodes.push(osc);
+  });
+
+  // Subtle page-turn-like random blip
+  let blipTimeout = null;
+  function scheduleBlip() {
+    if (!isPlaying) return;
+    const t = audioCtx.currentTime + Math.random() * 8 + 4;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 800 + Math.random() * 400;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.01, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+    osc.connect(g);
+    g.connect(masterGain);
+    osc.start(t);
+    osc.stop(t + 0.2);
+    osc.onended = () => { osc.disconnect(); g.disconnect(); };
+    blipTimeout = setTimeout(scheduleBlip, (Math.random() * 8000 + 4000));
+  }
+  scheduleBlip();
+}
+
+const soundBtn = document.getElementById('soundBtn');
+soundBtn.addEventListener('click', () => {
+  if (!isPlaying) {
+    if (!audioCtx) createAmbientSound();
+    else if (audioCtx.state === 'suspended') audioCtx.resume();
+    masterGain.gain.setTargetAtTime(1, audioCtx.currentTime, 1.5);
+    isPlaying = true;
+    soundBtn.classList.add('active');
+    scheduleBlip();
+  } else {
+    masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.8);
+    isPlaying = false;
+    soundBtn.classList.remove('active');
+    if (blipTimeout) { clearTimeout(blipTimeout); blipTimeout = null; }
+  }
+});
+
+/* ──────────────────────────────────
+   DUST PARTICLES
+────────────────────────────────── */
+const dustContainer = document.getElementById('dustContainer');
+for (let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  p.className = 'dust-p';
+  const size = Math.random() * 2 + 1;
+  p.style.cssText = `
+    left: ${Math.random() * 100}%;
+    width: ${size}px;
+    height: ${size}px;
+    opacity: ${Math.random() * 0.4 + 0.1};
+    animation-duration: ${Math.random() * 20 + 15}s;
+    animation-delay: ${Math.random() * -20}s;
+  `;
+  dustContainer.appendChild(p);
+}
+
+/* ──────────────────────────────────
+   GALLERY DRAG SCROLL
+────────────────────────────────── */
+const track = document.getElementById('galleryTrack');
+let isDown = false, startX, scrollL;
+
+track.addEventListener('mousedown', e => {
+  isDown = true;
+  track.classList.add('dragging');
+  startX = e.pageX - track.offsetLeft;
+  scrollL = track.scrollLeft;
+});
+track.addEventListener('mouseleave', () => {
+  isDown = false;
+  track.classList.remove('dragging');
+});
+track.addEventListener('mouseup', () => {
+  isDown = false;
+  track.classList.remove('dragging');
+});
+track.addEventListener('mousemove', e => {
+  if (!isDown) return;
+  e.preventDefault();
+  const x = e.pageX - track.offsetLeft;
+  const walk = (x - startX) * 1.5;
+  track.scrollLeft = scrollL - walk;
+});
+
+// Touch support for gallery
+let touchStartX = 0;
+track.addEventListener('touchstart', e => {
+  touchStartX = e.touches[0].clientX;
+  scrollL = track.scrollLeft;
+}, {passive: true});
+track.addEventListener('touchmove', e => {
+  const dx = touchStartX - e.touches[0].clientX;
+  track.scrollLeft = scrollL + dx;
+}, {passive: true});
+
+/* ──────────────────────────────────
+   HERO PARALLAX
+────────────────────────────────── */
+const heroContent = document.querySelector('.hero-content');
+window.addEventListener('scroll', () => {
+  const s = window.scrollY;
+  if (s < window.innerHeight && heroContent) {
+    heroContent.style.transform = `translateY(${s * 0.22}px)`;
+    heroContent.style.opacity = 1 - (s / window.innerHeight) * 1.4;
+  }
+}, {passive: true});
+
+/* ──────────────────────────────────
+   GALLERY OVERFLOW (horizontal scroll)
+────────────────────────────────── */
+// Override default scroll so gallery scrolls horizontally on wheel
+track.addEventListener('wheel', e => {
+  e.preventDefault();
+  track.scrollLeft += e.deltaY * 0.8;
+}, {passive: false});
+</script>
 </body>
 </html>
