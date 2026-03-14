@@ -992,6 +992,36 @@ nav.scrolled{
 }
 
 .about-right{padding-top:16px}
+.about-photo-wrap{
+  width:100%;
+  aspect-ratio:4/3;
+  overflow:hidden;
+  margin-bottom:32px;
+  position:relative;
+}
+.about-photo{
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:center 40%;
+  filter:brightness(0.52) contrast(1.12) saturate(0.62) sepia(0.18);
+  transition:transform .8s var(--ease-out);
+}
+.about-photo-wrap:hover .about-photo{transform:scale(1.04)}
+
+.find-sign-wrap{
+  width:100%;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  margin-bottom:20px;
+  position:relative;
+}
+.find-sign-photo{
+  width:100%;height:100%;
+  object-fit:cover;
+  filter:brightness(0.55) contrast(1.1) saturate(0.7) sepia(0.25);
+  transition:transform .8s var(--ease-out);
+}
+.find-sign-wrap:hover .find-sign-photo{transform:scale(1.04)}
 /* Philosophy cards */
 .philo-card{
   padding:28px 0;
@@ -1382,7 +1412,7 @@ footer{
   </div>
   <div class="c-visual-wrap reveal reveal-d1">
     <div class="c-visual">
-      <img src="images/sorotimage4.jpg" alt="소롯 창가 — 블라인드와 독서등" class="space-photo">
+      <img src="images/sorotiamage10.jpg" alt="소롯 샹들리에 — 천장에 번지는 빛" class="space-photo">
       <span class="c-tag tl">소롯</span>
       <span class="c-tag tr">서울 성동구</span>
       <div class="c-window">
@@ -1429,11 +1459,13 @@ footer{
       <span class="gc-num">03</span>
     </div>
     <div class="gallery-card gc-4">
-      <span class="gc-label">고요함</span>
+      <img src="images/sorotiamage8.jpg" alt="소롯 테이블 — 나만의 자리" class="gc-photo">
+      <span class="gc-label">나만의 자리</span>
       <span class="gc-num">04</span>
     </div>
     <div class="gallery-card gc-5">
-      <span class="gc-label">빛과 그림자</span>
+      <img src="images/sorotiamage9.jpg" alt="소롯 책장 — 큐레이션된 책들" class="gc-photo">
+      <span class="gc-label">큐레이션된 책</span>
       <span class="gc-num">05</span>
     </div>
   </div>
@@ -1547,6 +1579,9 @@ footer{
     </div>
   </div>
   <div class="about-right reveal reveal-d2">
+    <div class="about-photo-wrap">
+      <img src="images/sorotiamage11.jpg" alt="소롯 창가 소파 — 빛이 드는 오후" class="about-photo">
+    </div>
     <div class="philo-card">
       <span class="philo-num">01</span>
       <p class="philo-heading">프라이빗한 공간</p>
@@ -1596,6 +1631,9 @@ footer{
       </div>
     </div>
     <div class="find-right reveal reveal-d1">
+      <div class="find-sign-wrap">
+        <img src="images/sorotiamage7.jpg" alt="소롯 목판 간판" class="find-sign-photo">
+      </div>
       <div class="find-info-block">
         <p class="fib-label">방문 안내</p>
         <div class="fib-data">
