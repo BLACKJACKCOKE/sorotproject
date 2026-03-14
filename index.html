@@ -705,7 +705,12 @@ nav.scrolled{
   cursor:grab;
   user-select:none;
   padding:0 56px;
+  overflow-x:auto;
+  overflow-y:visible;
+  scrollbar-width:none;        /* Firefox */
+  -webkit-overflow-scrolling:touch;
 }
+.gallery-track::-webkit-scrollbar{display:none} /* Chrome/Safari */
 .gallery-track:active{cursor:grabbing}
 .gallery-card{
   flex-shrink:0;
@@ -1299,7 +1304,21 @@ footer{
     gap:56px;
   }
   .s-quote{padding:80px 24px}
-  .gallery-track{padding:0 24px}
+  .gallery-track{
+    padding:0 24px 0 24px;
+    gap:10px;
+    scroll-snap-type:x mandatory;
+    cursor:default;
+  }
+  .gallery-track:active{cursor:default}
+  .gallery-card{
+    scroll-snap-align:start;
+    flex-shrink:0;
+    width:80vw !important;
+    height:60vw !important;
+    min-height:240px;
+    max-height:400px;
+  }
   .s-reviews{
     flex-direction:column;gap:48px;
     padding:90px 24px;
@@ -1655,7 +1674,7 @@ footer{
         <p class="fib-label">방문 안내</p>
         <div class="fib-data">
           <span>위치</span>
-          <strong>서울 성동구 아차산로5길 37-1 3층 옥탑</strong>
+          <strong>서울 성동구 아차산로5길 37-1 3층 옥탑방과 잔디 옥상</strong>
           <span>운영일</span>
           <strong>월요일 — 일요일</strong>
           <span>운영시간</span>
