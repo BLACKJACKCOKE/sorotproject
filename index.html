@@ -1761,115 +1761,135 @@ document.querySelectorAll('.reveal, .reveal-left, .reveal-d1, .reveal-d2, .revea
 /* ──────────────────────────────────
    AMBIENT MUSIC PLAYER
    Source: Free Music Archive — CC BY 4.0
-   Artist: Kai Engel, Lee Rosevere
+   Artist: Kai Engel — Sustain
+   Default: ON (starts on first interaction)
 ────────────────────────────────── */
 const PLAYLIST = [
-  {
-    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_01_-_Contredanse.mp3',
-    label: 'Contredanse — Kai Engel'
-  },
-  {
-    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_02_-_Heliodor.mp3',
-    label: 'Heliodor — Kai Engel'
-  },
-  {
-    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_03_-_Snowflakes.mp3',
-    label: 'Snowflakes — Kai Engel'
-  },
-  {
-    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_04_-_Waterfall.mp3',
-    label: 'Waterfall — Kai Engel'
-  },
-  {
-    src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_05_-_Daybreak.mp3',
-    label: 'Daybreak — Kai Engel'
-  }
+  { src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_01_-_Contredanse.mp3',  label: 'Contredanse' },
+  { src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_02_-_Heliodor.mp3',     label: 'Heliodor' },
+  { src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_03_-_Snowflakes.mp3',   label: 'Snowflakes' },
+  { src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_04_-_Waterfall.mp3',    label: 'Waterfall' },
+  { src: 'https://files.freemusicarchive.org/storage-quietkoala/music/WFMU/Kai_Engel/Sustain/Kai_Engel_-_05_-_Daybreak.mp3',     label: 'Daybreak' }
 ];
 
+const soundBtn    = document.getElementById('soundBtn');
+const trackNameEl = document.getElementById('soundTrackName');
+
 let audio        = null;
-let audioCtx     = null;
-let gainNode     = null;
 let isPlaying    = false;
 let currentIdx   = 0;
-let skipCount    = 0;
+let errorCount   = 0;
+let fadeTimer    = null;
+let started      = false;
 
-const soundBtn     = document.getElementById('soundBtn');
-const trackNameEl  = document.getElementById('soundTrackName');
-
-function updateTrackName() {
-  if (trackNameEl) trackNameEl.textContent = PLAYLIST[currentIdx].label;
+/* ── Volume fade (no Web Audio API = no CORS issues) ── */
+function fadeTo(targetVol, ms, onDone) {
+  if (!audio) return;
+  if (fadeTimer) clearInterval(fadeTimer);
+  const STEPS    = 30;
+  const interval = ms / STEPS;
+  const startVol = audio.volume;
+  const delta    = targetVol - startVol;
+  let   step     = 0;
+  fadeTimer = setInterval(() => {
+    step++;
+    audio.volume = Math.min(1, Math.max(0, startVol + delta * (step / STEPS)));
+    if (step >= STEPS) {
+      clearInterval(fadeTimer);
+      fadeTimer = null;
+      if (onDone) onDone();
+    }
+  }, interval);
 }
 
+/* ── Load and play current track ── */
+function loadTrack() {
+  audio.src = PLAYLIST[currentIdx].src;
+  if (trackNameEl) trackNameEl.textContent = PLAYLIST[currentIdx].label + ' — Kai Engel';
+  audio.volume = 0;
+  audio.play().then(() => {
+    fadeTo(0.75, 3000);
+  }).catch(() => {
+    skipTrack();
+  });
+}
+
+function skipTrack() {
+  errorCount++;
+  if (errorCount >= PLAYLIST.length) return; // all failed
+  currentIdx = (currentIdx + 1) % PLAYLIST.length;
+  loadTrack();
+}
+
+/* ── Init audio element once ── */
 function initAudio() {
   audio = new Audio();
-  audio.crossOrigin = 'anonymous';
   audio.preload = 'none';
-
-  // Web Audio API gain node for smooth fade
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  gainNode = audioCtx.createGain();
-  gainNode.gain.value = 0;
-  const src = audioCtx.createMediaElementSource(audio);
-  src.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-
   audio.addEventListener('ended', () => {
+    errorCount = 0;
     currentIdx = (currentIdx + 1) % PLAYLIST.length;
-    playTrack();
+    loadTrack();
   });
-
-  audio.addEventListener('error', () => {
-    skipCount++;
-    if (skipCount >= PLAYLIST.length) {
-      // All tracks failed — stop gracefully
-      isPlaying = false;
-      soundBtn.classList.remove('active');
-      if (trackNameEl) trackNameEl.textContent = '연결 안됨';
-      return;
-    }
-    currentIdx = (currentIdx + 1) % PLAYLIST.length;
-    playTrack();
-  });
+  audio.addEventListener('error', skipTrack);
 }
 
-function playTrack() {
-  if (!audio) return;
-  audio.src = PLAYLIST[currentIdx].src;
-  updateTrackName();
-  audio.play().catch(() => {
-    // Autoplay blocked or load error — trigger error handler
-    audio.dispatchEvent(new Event('error'));
-  });
+/* ── Start music (called on first interaction) ── */
+function startMusic() {
+  if (started) return;
+  started   = true;
+  isPlaying = true;
+  initAudio();
+  loadTrack();
+  soundBtn.classList.add('active');
 }
 
-function fadeIn(duration = 2.5) {
-  if (!audioCtx || !gainNode) return;
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-  gainNode.gain.setValueAtTime(gainNode.gain.value, audioCtx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0.85, audioCtx.currentTime + duration);
+/* ── First interaction → autostart ── */
+function onFirstInteraction() {
+  startMusic();
+  ['click','scroll','touchstart','keydown'].forEach(ev =>
+    document.removeEventListener(ev, onFirstInteraction));
 }
+['click','scroll','touchstart','keydown'].forEach(ev =>
+  document.addEventListener(ev, onFirstInteraction, { passive: true }));
 
-function fadeOut(duration = 1.8) {
-  if (!audioCtx || !gainNode) return;
-  gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-  gainNode.gain.setValueAtTime(gainNode.gain.value, audioCtx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
-  setTimeout(() => { if (audio) audio.pause(); }, duration * 1000 + 100);
-}
+/* ── Try immediate autoplay (works in some browsers) ── */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (started) return;
+    initAudio();
+    audio.volume = 0;
+    audio.src = PLAYLIST[0].src;
+    audio.play().then(() => {
+      started   = true;
+      isPlaying = true;
+      if (trackNameEl) trackNameEl.textContent = PLAYLIST[0].label + ' — Kai Engel';
+      fadeTo(0.75, 3000);
+      soundBtn.classList.add('active');
+      audio.addEventListener('ended', () => {
+        errorCount = 0;
+        currentIdx = (currentIdx + 1) % PLAYLIST.length;
+        loadTrack();
+      });
+      audio.addEventListener('error', skipTrack);
+    }).catch(() => { /* wait for interaction */ });
+  }, 2000); // after loader animation
+});
 
-soundBtn.addEventListener('click', () => {
-  if (!isPlaying) {
-    if (!audio) initAudio();
-    skipCount = 0;
-    playTrack();
-    fadeIn();
-    isPlaying = true;
-    soundBtn.classList.add('active');
-  } else {
-    fadeOut();
+/* ── Button: toggle OFF/ON ── */
+soundBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  if (!started) {
+    startMusic();
+    return;
+  }
+  if (isPlaying) {
+    fadeTo(0, 1800, () => { audio.pause(); });
     isPlaying = false;
     soundBtn.classList.remove('active');
+  } else {
+    audio.play().then(() => fadeTo(0.75, 2000));
+    isPlaying = true;
+    soundBtn.classList.add('active');
   }
 });
 
